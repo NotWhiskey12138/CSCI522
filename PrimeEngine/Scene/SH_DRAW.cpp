@@ -32,7 +32,8 @@
 #include "PrimeEngine/Render/ShaderActions/SA_SetAndBind_ConstResource_InstancedObjectsAnimationPalettes.h"
 #include "PrimeEngine/Scene/Skeleton.h"
 
-
+#include "DebugRenderer.h"
+#include "SceneNode.h"
 
 
 #include "SH_DRAW.h"
@@ -197,7 +198,7 @@ void SingleHandler_DRAW::do_GATHER_DRAWCALLS(Events::Event *pEvt)
     
     // debug testing of instance culling. do collision check instead.
     // remove false && to enable
-    if (false && pMeshCaller->m_performBoundingVolumeCulling)
+    /*if (pMeshCaller->m_performBoundingVolumeCulling)
     {
         pMeshCaller->m_numVisibleInstances = 0;
         
@@ -214,7 +215,30 @@ void SingleHandler_DRAW::do_GATHER_DRAWCALLS(Events::Event *pEvt)
                 pInst->m_culledOut = true;
             }
         }
-    }
+    }*/
+
+	if (pMeshCaller->m_performBoundingVolumeCulling)
+	{
+		pMeshCaller->m_numVisibleInstances = pMeshCaller->m_instances.m_size;
+		for (int iInst = 0; iInst < pMeshCaller->m_instances.m_size; ++iInst)
+		{
+			MeshInstance* pInst = pMeshCaller->m_instances[iInst].getObject<MeshInstance>();
+			pInst->m_culledOut = false; // 先全放行
+			Handle hSN = pInst->getFirstParentByType<SceneNode>();
+			if (hSN.isValid())
+			{
+				Matrix4x4 world = hSN.getObject<PE::Components::SceneNode>()->m_worldTransform;
+
+				// 画 AABB（黄色，TTL=0.2s；先让它保留几帧，方便肉眼确认）
+				DebugRenderer::Instance()->drawAABB(
+					pMeshCaller->m_minBounds,
+					pMeshCaller->m_maxBounds,
+					world,
+					0.2f, 1.f, 1.f, 0.f
+				);
+			}
+		}
+	}
     
 
 	DrawList *pDrawList = pDrawEvent ? DrawList::Instance() : DrawList::ZOnlyInstance();

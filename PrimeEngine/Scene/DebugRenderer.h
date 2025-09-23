@@ -62,6 +62,11 @@ struct DebugRenderer : public SceneNode
 
 	virtual void addDefaultComponents();
 	// Individual events -------------------------------------------------------
+
+	void drawAABB(const Vector3& mn, const Vector3& mx,
+		const Matrix4x4& world,
+		float timeToLive = 0.0f,
+		float r = 1.0f, float g = 1.0f, float b = 0.0f);
 	
 	private:
 		static Handle s_myHandle;
@@ -78,7 +83,7 @@ struct DebugRenderer : public SceneNode
 		Handle m_hLineMeshes[2]; // we will alternate between two meshes so that we can generate new one while old one is in draw call
 		Handle m_hLineMeshInstances[2];
 		int m_currentlyDrawnLineMesh;
-		static const int NUM_LineLists = (5 * 1024);
+		static const int NUM_LineLists = (20 * 1024);
 		Array<Array<float> > m_lineLists;
 		float m_lineListLifetimes[NUM_LineLists];
 		int m_availableLineLists[NUM_LineLists];

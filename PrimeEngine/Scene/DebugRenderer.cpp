@@ -261,6 +261,56 @@ void DebugRenderer::do_PRE_GATHER_DRAWCALLS(Events::Event *pEvt)
 	}
 }
 
+static inline Vector3 TransformPoint_NoH(const Matrix4x4& m, const Vector3& p)
+{
+	Vector3 U = m.getU(), V = m.getV(), N = m.getN(), T = m.getPos();
+	return Vector3(
+		T.m_x + U.m_x * p.m_x + V.m_x * p.m_y + N.m_x * p.m_z,
+		T.m_y + U.m_y * p.m_x + V.m_y * p.m_y + N.m_y * p.m_z,
+		T.m_z + U.m_z * p.m_x + V.m_z * p.m_y + N.m_z * p.m_z
+	);
+}
+
+void DebugRenderer::drawAABB(const Vector3& mn, const Vector3& mx,
+	const Matrix4x4& world,
+	float timeToLive,
+	float r, float g, float b)
+{
+	// 8 个局部角点
+	Vector3 c000(mn.m_x, mn.m_y, mn.m_z);
+	Vector3 c100(mx.m_x, mn.m_y, mn.m_z);
+	Vector3 c010(mn.m_x, mx.m_y, mn.m_z);
+	Vector3 c110(mx.m_x, mx.m_y, mn.m_z);
+	Vector3 c001(mn.m_x, mn.m_y, mx.m_z);
+	Vector3 c101(mx.m_x, mn.m_y, mx.m_z);
+	Vector3 c011(mn.m_x, mx.m_y, mx.m_z);
+	Vector3 c111(mx.m_x, mx.m_y, mx.m_z);
+
+	// 变到世界空间
+	Vector3 w000 = TransformPoint_NoH(world, c000);
+	Vector3 w100 = TransformPoint_NoH(world, c100);
+	Vector3 w010 = TransformPoint_NoH(world, c010);
+	Vector3 w110 = TransformPoint_NoH(world, c110);
+	Vector3 w001 = TransformPoint_NoH(world, c001);
+	Vector3 w101 = TransformPoint_NoH(world, c101);
+	Vector3 w011 = TransformPoint_NoH(world, c011);
+	Vector3 w111 = TransformPoint_NoH(world, c111);
+
+	// 12 条边 * 每条 2 个端点 * 每点 6 个 float(x y z r g b)
+	float v[12 * 2 * 6]; int o = 0;
+#define PUT(P) do{ v[o++]=(P).m_x; v[o++]=(P).m_y; v[o++]=(P).m_z; v[o++]=r; v[o++]=g; v[o++]=b; }while(0)
+	// 底面
+	PUT(w000); PUT(w100); PUT(w100); PUT(w110); PUT(w110); PUT(w010); PUT(w010); PUT(w000);
+	// 顶面
+	PUT(w001); PUT(w101); PUT(w101); PUT(w111); PUT(w111); PUT(w011); PUT(w011); PUT(w001);
+	// 竖边
+	PUT(w000); PUT(w001); PUT(w100); PUT(w101); PUT(w110); PUT(w111); PUT(w010); PUT(w011);
+#undef PUT
+
+	// 直接画我们提供的点（不再叠 transform）
+	Matrix4x4 dummy; // 非 const，匹配 createLineMesh 的签名
+	createLineMesh(false, dummy, v, /*numInRawData=*/24, timeToLive, 1.0f);
+}
 
 void DebugRenderer::postPreDraw(int &threadOwnershipMask)
 {
@@ -321,6 +371,8 @@ void DebugRenderer::postPreDraw(int &threadOwnershipMask)
 		pLineMeshInstance->setEnabled(false);
 	}
 	vertexData.reset(0);
+
+
 }
 
 }; // namespace Components

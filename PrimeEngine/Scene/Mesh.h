@@ -100,6 +100,9 @@ struct Mesh : public Component
 	bool m_bDrawControl;
     
     bool m_performBoundingVolumeCulling;
+
+	Vector3 m_minBounds;
+	Vector3 m_maxBounds;
 };
 
 }; // namespace Components

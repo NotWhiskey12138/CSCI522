@@ -70,6 +70,35 @@ PE::Handle MeshManager::getAsset(const char *asset, const char *package, int &th
 
 		pMesh->loadFromMeshCPU_needsRC(mcpu, threadOwnershipMask);
 
+		// 1) 计算局部 AABB（local-space）
+		Vector3 minBounds(3.4e38f, 3.4e38f, 3.4e38f);
+		Vector3 maxBounds(-3.4e38f, -3.4e38f, -3.4e38f);
+
+		if (mcpu.m_hPositionBufferCPU.isValid())
+		{
+			PositionBufferCPU* pPos = mcpu.m_hPositionBufferCPU.getObject<PositionBufferCPU>();
+			Array<PrimitiveTypes::Float32>& vals = pPos->m_values; // [x,y,z, x,y,z, ...]
+
+			for (PrimitiveTypes::UInt32 i = 0; i + 2 < vals.m_size; i += 3)
+			{
+				const float x = vals[i + 0];
+				const float y = vals[i + 1];
+				const float z = vals[i + 2];
+
+				if (x < minBounds.m_x) minBounds.m_x = x;
+				if (y < minBounds.m_y) minBounds.m_y = y;
+				if (z < minBounds.m_z) minBounds.m_z = z;
+
+				if (x > maxBounds.m_x) maxBounds.m_x = x;
+				if (y > maxBounds.m_y) maxBounds.m_y = y;
+				if (z > maxBounds.m_z) maxBounds.m_z = z;
+			}
+		}
+
+		// 2) 保存到 Mesh（局部空间 AABB）
+		pMesh->m_minBounds = minBounds;
+		pMesh->m_maxBounds = maxBounds;
+
 #if PE_API_IS_D3D11
 		// todo: work out how lods will work
 		//scpu.buildLod();
