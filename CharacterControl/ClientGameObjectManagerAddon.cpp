@@ -6,6 +6,7 @@
 #include "WayPoint.h"
 #include "Tank/ClientTank.h"
 #include "CharacterControl/Client/ClientSpaceShip.h"
+#include "CharacterControl/Characters/SoldierTPController.h"
 
 using namespace PE::Components;
 using namespace PE::Events;
@@ -66,6 +67,14 @@ void ClientGameObjectManagerAddon::createSoldierNPC(Event_CreateSoldierNPC *pTru
 	// add the soldier as component to the ObjecManagerComponentAddon
 	// all objects of this demo live in the ObjecManagerComponentAddon
 	addComponent(hSoldierNPC);
+
+	{
+		PE::Handle hCtrl("SoldierTPController", sizeof(SoldierTPController));
+		SoldierTPController* pCtrl = new(hCtrl) SoldierTPController(*m_pContext, m_arena, hCtrl);
+		pCtrl->addDefaultComponents();
+		pSoldierNPC->addComponent(hCtrl);
+	}
+
 }
 
 void ClientGameObjectManagerAddon::do_CREATE_WAYPOINT(PE::Events::Event *pEvt)

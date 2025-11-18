@@ -118,6 +118,7 @@ copy /Y "C:/Program Files (x86)/Windows Kits/8.0\bin\x86\d3dcompiler_46.dll" "$(
     <ClInclude Include="CharacterControl\Characters\SoldierNPCAnimationSM.h" />
     <ClInclude Include="CharacterControl\Characters\SoldierNPCBehaviorSM.h" />
     <ClInclude Include="CharacterControl\Characters\SoldierNPCMovementSM.h" />
+    <ClInclude Include="CharacterControl\Characters\SoldierTPController.h" />
     <ClInclude Include="CharacterControl\Client\ClientSpaceShip.h" />
     <ClInclude Include="CharacterControl\Client\ClientSpaceShipControls.h" />
     <ClInclude Include="CharacterControl\ClientCharacterControlGame.h" />
@@ -137,6 +138,7 @@ copy /Y "C:/Program Files (x86)/Windows Kits/8.0\bin\x86\d3dcompiler_46.dll" "$(
     <ClCompile Include="CharacterControl\Characters\SoldierNPCAnimationSM.cpp" />
     <ClCompile Include="CharacterControl\Characters\SoldierNPCBehaviorSM.cpp" />
     <ClCompile Include="CharacterControl\Characters\SoldierNPCMovementSM.cpp" />
+    <ClCompile Include="CharacterControl\Characters\SoldierTPController.cpp" />
     <ClCompile Include="CharacterControl\Client\ClientSpaceShip.cpp" />
     <ClCompile Include="CharacterControl\Client\ClientSpaceShipControls.cpp" />
     <ClCompile Include="CharacterControl\ClientCharacterControlGame.cpp" />
