@@ -97,7 +97,6 @@ void DefaultGameControls::do_UPDATE(Events::Event *pEvt)
 	}
 
 
-
 	// Events are destoryed by destroyFront() but this is called every frame just in case
 
 	iqh.getObject<Events::EventQueue>()->destroy();

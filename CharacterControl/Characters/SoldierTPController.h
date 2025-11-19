@@ -19,7 +19,11 @@ namespace CharacterControl {
 
             PE_DECLARE_IMPLEMENT_EVENT_HANDLER_WRAPPER(do_UPDATE)
                 virtual void do_UPDATE(PE::Events::Event* pEvt);
+            PE_DECLARE_IMPLEMENT_EVENT_HANDLER_WRAPPER(do_PRE_RENDER_needsRC)
+				void do_PRE_RENDER_needsRC(PE::Events::Event* pEvt);
 
+
+			PE::Handle m_hCameraSceneNode;
         };
 
     } // namespace Components

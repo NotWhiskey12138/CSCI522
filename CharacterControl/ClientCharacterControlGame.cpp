@@ -49,6 +49,7 @@ int ClientCharacterControlGame::initGame()
 
 	m_pContext->getGameObjectManager()->addComponent(hDefaultGameControls);
 
+
 	// initialize game
 
 	// create the GameObjectmanager addon that is in charge of game objects in this demo
