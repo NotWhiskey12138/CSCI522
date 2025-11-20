@@ -9,6 +9,9 @@
 #include "Characters/SoldierNPCAnimationSM.h"
 #include "CharacterControl/Characters/SoldierNPCAnimationSM.h"
 #include "CharacterControlContext.h"
+#include "CharacterControl/Player/Player.h"
+#include "CharacterControl/Player/PlayerControls.h"
+
 #if PE_PLAT_IS_WIN32
 #include "test.h"
 #endif
@@ -71,7 +74,7 @@ int ClientCharacterControlGame::initGame()
 		PE::Handle h("TankGameControls", sizeof(TankGameControls));
 		pGameCtx->m_pTankGameControls = new(h) TankGameControls(*m_pContext, m_arena, h);
 		pGameCtx->getTankGameControls()->addDefaultComponents();
-
+		
 		// add it to game object manager addon
 		pGameCtx->getGameObjectManagerAddon()->addComponent(h);
 
@@ -87,6 +90,21 @@ int ClientCharacterControlGame::initGame()
 				i, m_pContext->m_gameThreadThreadOwnershipMask);
 		}
 #endif
+	}
+
+	//Player Controller input 
+	{
+		PE::Handle h("PlayerControls", sizeof(PlayerControls));
+		pGameCtx->m_pPlayerControls = new(h) PlayerControls(*m_pContext, m_arena, h);
+		pGameCtx->getPlayerControls()->addDefaultComponents();
+
+		// add it to game object manager addon
+		pGameCtx->getGameObjectManagerAddon()->addComponent(h);
+
+		// start deactivated. needs to be deactivated AFTER adding it to parent components
+		pGameCtx->getPlayerControls()->setEnabled(false);
+
+		if(flase)
 	}
 
 	{

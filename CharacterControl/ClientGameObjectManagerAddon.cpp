@@ -6,6 +6,8 @@
 #include "WayPoint.h"
 #include "Tank/ClientTank.h"
 #include "CharacterControl/Client/ClientSpaceShip.h"
+#include "CharacterControl/Player/Player.h"
+#include "CharacterControl/Player/PlayerControls.h"
 
 using namespace PE::Components;
 using namespace PE::Events;
@@ -150,6 +152,51 @@ void ClientGameObjectManagerAddon::createTank(int index, int &threadOwnershipMas
 	pTankController->addComponent(hSN, &alllowedEventsToPropagate[0]);
 }
 
+
+void ClientGameObjectManagerAddon::createPlayer(Vector3 spawnPos, int& threadOwnershipMask)
+{
+
+	//create hierarchy:
+	//scene root
+	//  scene node // tracks position/orientation
+	//    Tank
+
+	//game object manager
+	//  TankController
+	//    scene node
+
+	PE::Handle hMeshInstance("MeshInstance", sizeof(MeshInstance));
+	MeshInstance* pMeshInstance = new(hMeshInstance) MeshInstance(*m_pContext, m_arena, hMeshInstance);
+
+	pMeshInstance->addDefaultComponents();
+	pMeshInstance->initFromFile("SoldierTransform.mesha", "Player", threadOwnershipMask);
+
+	// need to create a scene node for this mesh
+	PE::Handle hSN("SCENE_NODE", sizeof(SceneNode));
+	SceneNode* pSN = new(hSN) SceneNode(*m_pContext, m_arena, hSN);
+	pSN->addDefaultComponents();
+
+	pSN->m_base.setPos(spawnPos);
+
+	pSN->addComponent(hMeshInstance);
+
+	RootSceneNode::Instance()->addComponent(hSN);
+
+	// now add game objects
+
+	PE::Handle hPlayer("Player", sizeof(Player));
+	Player* pPlayer = new(hPlayer) Player(*m_pContext, m_arena, hPlayer, spawnPos);
+	pPlayer->addDefaultComponents();
+
+	addComponent(hPlayer);
+
+	// add the same scene node to tank controller
+	static int alllowedEventsToPropagate[] = { 0 }; // we will pass empty array as allowed events to propagate so that when we add
+	// scene node to the square controller, the square controller doesnt try to handle scene node's events
+	// because scene node handles events through scene graph, and is child of square controller just for referencing purposes
+	pPlayer->addComponent(hSN, &alllowedEventsToPropagate[0]);
+}
+
 void ClientGameObjectManagerAddon::createSpaceShip(int &threadOwnershipMask)
 {
 
@@ -196,6 +243,7 @@ void ClientGameObjectManagerAddon::createSpaceShip(int &threadOwnershipMask)
 
 	pSpaceShip->activate();
 }
+
 
 
 void ClientGameObjectManagerAddon::do_SERVER_CLIENT_CONNECTION_ACK(PE::Events::Event *pEvt)

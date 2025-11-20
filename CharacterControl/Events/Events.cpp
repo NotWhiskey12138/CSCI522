@@ -141,9 +141,14 @@ int Event_MoveTank_S_to_C::constructFromStream(char *pDataStream)
 	return read;
 }
 
+PE_IMPLEMENT_CLASS1(Event_Player_MoveX, Event_Player_MoveX);
+
+PE_IMPLEMENT_CLASS1(Event_Player_MoveY, Event_Player_MoveX);
+
 PE_IMPLEMENT_CLASS1(Event_Tank_Throttle, Event);
 
 PE_IMPLEMENT_CLASS1(Event_Tank_Turn, Event);
+
 
 
 };

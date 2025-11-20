@@ -38,13 +38,19 @@ struct ClientGameObjectManagerAddon : public GameObjectManagerAddon
 	PE_DECLARE_IMPLEMENT_EVENT_HANDLER_WRAPPER(do_MoveTank);
 	virtual void do_MoveTank(PE::Events::Event *pEvt);
 
+	PE_DECLARE_IMPLEMENT_EVENT_HANDLER_WRAPPER(do_CreatePlayer);
+	virtual void do_CreatePlayer(PE::Events::Event* pEvt);
+
 
 	// no need to implement this as eent since tank creation will be hardcoded
 	void createTank(int index, int &threadOwnershipMask);
 
+	void createPlayer(Vector3 pos, int& threadOwnershipMask);
+
 	void createSpaceShip(int &threadOwnershipMask);
 	void createSoldierNPC(Vector3 pos, int &threadOwnershipMask);
 	void createSoldierNPC(Events::Event_CreateSoldierNPC *pTrueEvent);
+	
 
 
 	//////////////////////////////////////////////////////////////////////////

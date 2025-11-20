@@ -61,7 +61,7 @@ void ClientSpaceShip::addDefaultComponents()
     PE_REGISTER_EVENT_HANDLER(PE::Events::Event_UPDATE, ClientSpaceShip::do_UPDATE);
 
 	// note: these event handlers will be registered only when one tank is activated as client tank (i.e. driven by client input on this machine)
-// 	PE_REGISTER_EVENT_HANDLER(Event_Tank_Throttle, TankController::do_Tank_Throttle);
+ 	PE_REGISTER_EVENT_HANDLER(Event_Tank_Throttle, TankController::do_Tank_Throttle);
 // 	PE_REGISTER_EVENT_HANDLER(Event_Tank_Turn, TankController::do_Tank_Turn);
 
 }

@@ -81,6 +81,25 @@ struct Event_Tank_Turn : public PE::Events::Event {
 	Vector3 m_relativeRotate;
 };
 
+//Player input controls
+struct Event_Player_MoveX : public PE::Events::Event {
+	PE_DECLARE_CLASS(Event_Player_MoveX);
+
+	Event_Player_MoveX() {}
+	virtual ~Event_Player_MoveX() {}
+
+	float m_moveX;
+};
+
+struct Event_Player_MoveY : public PE::Events::Event {
+	PE_DECLARE_CLASS(Event_Player_MoveY);
+
+	Event_Player_MoveY() {}
+	virtual ~Event_Player_MoveY() {}
+
+	float m_moveY;
+};
+
 }; // namespace Events
 }; // namespace CharacterControl
 
