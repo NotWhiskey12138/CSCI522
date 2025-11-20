@@ -80,6 +80,8 @@ namespace CharacterControl {
             float m_moveSpeed;      // 移动速度
             float m_rotateSpeed;    // 旋转速度
             float m_currentRotation; // 当前Y轴旋转角度
+
+			bool isMoving; // 检测是否在移动
         };
 
     }; // namespace Components

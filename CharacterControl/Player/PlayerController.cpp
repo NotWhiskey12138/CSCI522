@@ -12,6 +12,9 @@
 #include "PrimeEngine/Events/StandardControllerEvents.h"
 #include "PrimeEngine/Events/EventQueueManager.h"
 #include "PrimeEngine/GameObjectModel/DefaultGameControls/DefaultGameControls.h"
+#include "PrimeEngine/Scene/SkeletonInstance.h"
+#include "CharacterControl/Events/Events.h"
+#include "CharacterControl/Characters/SoldierNPCAnimationSM.h"
 
 using namespace PE::Components;
 using namespace PE::Events;
@@ -194,12 +197,34 @@ namespace CharacterControl {
                     // 更新位置
                     Vector3 currentPos = pFirstSN->m_base.getPos();
                     pFirstSN->m_base.setPos(currentPos + worldMove);
+
+                    isMoving = true;
                 }
+                else {
+                    isMoving = false;
+				}
 
                 // 3. 更新旋转矩阵
                 pFirstSN->m_base.setU(Vector3(cos(m_currentRotation), 0, sin(m_currentRotation)));
                 pFirstSN->m_base.setN(Vector3(-sin(m_currentRotation), 0, cos(m_currentRotation)));
                 pFirstSN->m_base.setV(Vector3(0, 1, 0));
+
+                SkeletonInstance* pSkelInst = pFirstSN->getFirstComponent<SkeletonInstance>();
+                if (pSkelInst)
+                {
+                    if (isMoving)
+                    {
+                        // 播放行走动画
+                        CharacterControl::Events::SoldierNPCAnimSM_Event_WALK walkEvt;
+                        pSkelInst->handleEvent(&walkEvt);
+                    }
+                    else
+                    {
+                        // 播放停止动画
+                        CharacterControl::Events::SoldierNPCAnimSM_Event_STOP stopEvt;
+                        pSkelInst->handleEvent(&stopEvt);
+                    }
+                }
 
                 // 4. 网络同步计时
                 m_networkPingTimer += deltaTime;

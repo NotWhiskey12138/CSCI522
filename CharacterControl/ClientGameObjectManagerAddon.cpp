@@ -1,4 +1,4 @@
-#include "ClientGameObjectManagerAddon.h"
+﻿#include "ClientGameObjectManagerAddon.h"
 
 #include "PrimeEngine/PrimeEngineIncludes.h"
 
@@ -7,6 +7,10 @@
 #include "Tank/ClientTank.h"
 #include "CharacterControl/Client/ClientSpaceShip.h"
 #include "CharacterControl/Player/PlayerController.h"
+
+#include "Characters/SoldierNPCAnimationSM.h"
+#include "PrimeEngine/Scene/SkeletonInstance.h"
+#include "CharacterControl/Events/Events.h"
 
 using namespace PE::Components;
 using namespace PE::Events;
@@ -248,7 +252,7 @@ void ClientGameObjectManagerAddon::do_MoveTank(PE::Events::Event *pEvt)
 	}
 }
 
-// �� ClientGameObjectManagerAddon.cpp ������
+// 在 ClientGameObjectManagerAddon.cpp 中添加
 
 void ClientGameObjectManagerAddon::createPlayer(int& threadOwnershipMask)
 {
@@ -261,25 +265,67 @@ void ClientGameObjectManagerAddon::createPlayer(int& threadOwnershipMask)
 	//  PlayerController
 	//    scene node
 
-	// ��������ʵ��
-	PE::Handle hMeshInstance("MeshInstance", sizeof(MeshInstance));
-	MeshInstance* pMeshInstance = new(hMeshInstance) MeshInstance(*m_pContext, m_arena, hMeshInstance);
-	pMeshInstance->addDefaultComponents();
-	pMeshInstance->initFromFile("kingtiger.x_main_mesh.mesha", "Default", threadOwnershipMask);
+	//// 创建网格实例
+	//PE::Handle hMeshInstance("MeshInstance", sizeof(MeshInstance));
+	//MeshInstance* pMeshInstance = new(hMeshInstance) MeshInstance(*m_pContext, m_arena, hMeshInstance);
+	//pMeshInstance->addDefaultComponents();
+	//pMeshInstance->initFromFile("SoldierTransform.mesha", "Default", threadOwnershipMask);
 
-	// ���������ڵ�
+	// 创建场景节点
 	PE::Handle hSN("SCENE_NODE", sizeof(SceneNode));
 	SceneNode* pSN = new(hSN) SceneNode(*m_pContext, m_arena, hSN);
 	pSN->addDefaultComponents();
 
 	Vector3 spawnPos(0, 0, 0.0f);
 	pSN->m_base.setPos(spawnPos);
+	
+	pSN->m_base.setU(Vector3(1, 0, 0));   // 右方向
+	pSN->m_base.setV(Vector3(0, 1, 0));   // 上方向
+	pSN->m_base.setN(Vector3(0, 0, 1));   // 前方向
 
-	pSN->addComponent(hMeshInstance);
+	// ============ 创建士兵骨骼动画系统 ============
+	{
+		// 1. 创建动画状态机
+		PE::Handle hSoldierAnimSM("SoldierNPCAnimationSM", sizeof(SoldierNPCAnimationSM));
+		SoldierNPCAnimationSM* pSoldierAnimSM = new(hSoldierAnimSM) SoldierNPCAnimationSM(*m_pContext, m_arena, hSoldierAnimSM);
+		pSoldierAnimSM->addDefaultComponents();
+		pSoldierAnimSM->m_debugAnimIdOffset = 0;
+
+		// 2. 创建骨骼实例
+		PE::Handle hSkeletonInstance("SkeletonInstance", sizeof(SkeletonInstance));
+		SkeletonInstance* pSkelInst = new(hSkeletonInstance) SkeletonInstance(*m_pContext, m_arena, hSkeletonInstance,
+			hSoldierAnimSM);
+		pSkelInst->addDefaultComponents();
+
+		// 加载骨骼和动画
+		pSkelInst->initFromFiles("soldier_Soldier_Skeleton.skela", "Soldier", threadOwnershipMask);
+		pSkelInst->setAnimSet("soldier_Soldier_Skeleton.animseta", "Soldier");
+
+		// 3. 创建网格实例（附加到骨骼上）
+		{
+			PE::Handle hMeshInstance("MeshInstance", sizeof(MeshInstance));
+			MeshInstance* pMeshInstance = new(hMeshInstance) MeshInstance(*m_pContext, m_arena, hMeshInstance);
+			pMeshInstance->addDefaultComponents();
+
+			// ✅ 网格附加到骨骼，不是直接加载
+			pMeshInstance->initFromFile("SoldierTransform.mesha", "Soldier", threadOwnershipMask);
+
+			pSkelInst->addComponent(hMeshInstance);
+		}
+
+		// 4. 触发行走动画
+		/*Events::SoldierNPCAnimSM_Event_WALK evt;
+		pSkelInst->handleEvent(&evt);*/
+
+		// 5. 将骨骼添加到场景节点
+		pSN->addComponent(hSkeletonInstance);
+	}
+
+	//pSN->addComponent(hMeshInstance);
 
 	RootSceneNode::Instance()->addComponent(hSN);
 
-	// ������ҿ�����
+	// 创建玩家控制器
 	PE::Handle hPlayerController("PlayerController", sizeof(PlayerController));
 	PlayerController* pPlayerController = new(hPlayerController) PlayerController(
 		*m_pContext, m_arena, hPlayerController, spawnPos, 0.05f);
@@ -287,11 +333,11 @@ void ClientGameObjectManagerAddon::createPlayer(int& threadOwnershipMask)
 
 	addComponent(hPlayerController);
 
-	// ���ӳ����ڵ����õ�������
+	// 添加场景节点引用到控制器
 	static int allowedEventsToPropagate[] = { 0 };
 	pPlayerController->addComponent(hSN, &allowedEventsToPropagate[0]);
 
-	// ������ҿ���
+	// 激活玩家控制
 	pPlayerController->activate();
 }
 
