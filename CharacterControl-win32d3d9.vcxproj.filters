@@ -52,6 +52,9 @@
     <ClInclude Include="CharacterControl\Characters\SoldierTPController.h">
       <Filter>Characters</Filter>
     </ClInclude>
+    <ClInclude Include="CharacterControl\Characters\SoldierGameControls.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CharacterControl\Characters\SoldierNPC.cpp">
@@ -87,6 +90,9 @@
     <ClCompile Include="CharacterControl\WayPoint.cpp" />
     <ClCompile Include="CharacterControl\main.cpp" />
     <ClCompile Include="CharacterControl\Characters\SoldierTPController.cpp">
+      <Filter>Characters</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterControl\Characters\SoldierGameControls.cpp">
       <Filter>Characters</Filter>
     </ClCompile>
   </ItemGroup>

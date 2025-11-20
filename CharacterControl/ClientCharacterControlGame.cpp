@@ -9,6 +9,7 @@
 #include "Characters/SoldierNPCAnimationSM.h"
 #include "CharacterControl/Characters/SoldierNPCAnimationSM.h"
 #include "CharacterControlContext.h"
+#include "CharacterControl/Characters/SoldierGameControls.h"
 #if PE_PLAT_IS_WIN32
 #include "test.h"
 #endif
@@ -108,6 +109,37 @@ int ClientCharacterControlGame::initGame()
 		}
 	}
 
+	{
+		PE::Handle h("SoldierGameControls", sizeof(SoldierGameControls));
+		pGameCtx->m_pSoldierGameControls = new(h) SoldierGameControls(*m_pContext, m_arena, h);
+		pGameCtx->getSoldierGameControls()->addDefaultComponents();
+
+		// 添加到 GameObjectManagerAddon
+		pGameCtx->getGameObjectManagerAddon()->addComponent(h);
+
+		// 默认先不激活
+		pGameCtx->getSoldierGameControls()->setEnabled(false);
+
+		m_pContext->getGPUScreen()->ReleaseRenderContextOwnership(m_pContext->m_gameThreadThreadOwnershipMask);
+		// 1. 创建主角 Soldier
+	// 我们调用 ClientGameObjectManagerAddon 中的辅助函数来生成 Soldier
+	// 注意：根据你的代码，这个函数内部会自动挂载 SoldierTPController
+		Vector3 playerSpawnPos(0.0f, 0.0f, 0.0f);
+		((ClientGameObjectManagerAddon*)(pGameCtx->getGameObjectManagerAddon()))->createSoldierNPC(
+			playerSpawnPos,
+			m_pContext->m_gameThreadThreadOwnershipMask
+		);
+
+		m_pContext->getGPUScreen()->AcquireRenderContextOwnership(m_pContext->m_gameThreadThreadOwnershipMask);
+
+		// 2. 切换输入控制
+		// 禁用默认的调试相机（WASD自由飞行）
+		m_pContext->getDefaultGameControls()->setEnabled(false);
+
+		// 启用我们编写的 Soldier 键盘控制器
+		// 这样 SoldierTPController 才能读取到有效的 m_forward/m_turn 数据
+		pGameCtx->getSoldierGameControls()->setEnabled(true);
+	}
 
 	if (false)
 	{

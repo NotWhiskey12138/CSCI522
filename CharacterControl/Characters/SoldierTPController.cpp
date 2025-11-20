@@ -10,6 +10,9 @@
 #include "PrimeEngine/Scene/CameraManager.h"
 #include "PrimeEngine/Logging/Log.h"
 
+#include "CharacterControl/CharacterControlContext.h"
+#include "SoldierGameControls.h" // 记得包含这个
+
 using namespace PE::Components;
 using namespace PE::Events;
 using namespace CharacterControl::Events;
@@ -44,6 +47,10 @@ namespace CharacterControl {
             PE::Events::Event_UPDATE* pRealEvent = (PE::Events::Event_UPDATE*)(pEvt);
             float dt = pRealEvent->m_frameTime;
 
+            // 1. 获取输入控制器
+            CharacterControlContext* pCtx = m_pContext->get<CharacterControlContext>();
+            SoldierGameControls* pControls = pCtx->getSoldierGameControls();
+
             // 1. 找到父对象的 SoldierNPC
             CharacterControl::Components::SoldierNPC* pSol =
                 getFirstParentByTypePtr<CharacterControl::Components::SoldierNPC>();
@@ -58,34 +65,82 @@ namespace CharacterControl {
                 PE::Components::SceneNode* pSN = hSN.getObject<PE::Components::SceneNode>();
 
                 // 3. 简单测试：一直往自己面朝的方向走
+                //Vector3 forward = pSN->m_base.getN();
+                //float speed = 2.0f;
+
+                //Vector3 pos = pSN->m_base.getPos();
+                //pos += forward * speed * dt;
+                //pSN->m_base.setPos(pos);
+
+                //CameraSceneNode* pCamSN = m_hCameraSceneNode.getObject<CameraSceneNode>();
+
+                //// 2. 士兵位置和方向
+                //Vector3 soldierPos = pSN->m_base.getPos();
+                //Vector3 forward2 = pSN->m_base.getN();
+                //Vector3 right = pSN->m_base.getU();
+                //Vector3 up = pSN->m_base.getV();
+
+                //// 3. 参数
+                //float camDist = 5.0f;
+                //float camHeight = 2.0f;
+
+                //// 4. 计算相机位置
+                //Vector3 camPos = soldierPos - forward2 * camDist + up * camHeight;
+
+                //// 5. 设置相机变换
+                //pCamSN->m_base.setPos(camPos);
+                //pCamSN->m_base.setU(right);
+                //pCamSN->m_base.setV(up);
+                //pCamSN->m_base.setN(forward2);
+
+                // 4. 根据输入计算移动
                 Vector3 forward = pSN->m_base.getN();
-                float speed = 2.0f;
-
-                Vector3 pos = pSN->m_base.getPos();
-                pos += forward * speed * dt;
-                pSN->m_base.setPos(pos);
-
-                CameraSceneNode* pCamSN = m_hCameraSceneNode.getObject<CameraSceneNode>();
-
-                // 2. 士兵位置和方向
-                Vector3 soldierPos = pSN->m_base.getPos();
-                Vector3 forward2 = pSN->m_base.getN();
                 Vector3 right = pSN->m_base.getU();
-                Vector3 up = pSN->m_base.getV();
 
-                // 3. 参数
-                float camDist = 5.0f;
-                float camHeight = 2.0f;
+                // 读取 Controls 中的变量
+                float moveFwd = pControls->m_forward; // W/S
+                float moveSide = pControls->m_right;  // A/D
+                float rotY = pControls->m_turn;       // Left/Right Arrow
 
-                // 4. 计算相机位置
-                Vector3 camPos = soldierPos - forward2 * camDist + up * camHeight;
+                // 应用旋转 (Y轴)
+                if (fabs(rotY) > 0.001f)
+                {
+                    pSN->m_base.turnLeft(rotY * dt);
+                }
 
-                // 5. 设置相机变换
-                pCamSN->m_base.setPos(camPos);
-                pCamSN->m_base.setU(right);
-                pCamSN->m_base.setV(up);
-                pCamSN->m_base.setN(forward2);
+                // 应用位移
+                if (fabs(moveFwd) > 0.001f || fabs(moveSide) > 0.001f)
+                {
+                    Vector3 currentPos = pSN->m_base.getPos();
+                    Vector3 moveDelta = (forward * moveFwd + right * moveSide) * dt;
+                    pSN->m_base.setPos(currentPos + moveDelta);
+                }
 
+                // 5. 更新相机位置 (跟随 Soldier)
+                if (m_hCameraSceneNode.isValid())
+                {
+                    CameraSceneNode* pCamSN = m_hCameraSceneNode.getObject<CameraSceneNode>();
+
+                    // 重新获取更新后的 soldier 方向
+                    Vector3 soldierPos = pSN->m_base.getPos();
+                    Vector3 soldierFwd = pSN->m_base.getN();
+                    Vector3 soldierUp = pSN->m_base.getV();
+
+                    // 相机参数
+                    float camDist = 5.0f;
+                    float camHeight = 2.5f;
+
+                    // 简单的第三人称相机位置
+                    Vector3 camPos = soldierPos - soldierFwd * camDist + soldierUp * camHeight;
+
+                    // 设置相机
+                    pCamSN->m_base.setPos(camPos);
+
+                    // 让相机看向 Soldier 前方
+                    pCamSN->m_base.setN(soldierFwd);
+                    pCamSN->m_base.setU(pSN->m_base.getU());
+                    pCamSN->m_base.setV(soldierUp);
+                }
             }
 
 

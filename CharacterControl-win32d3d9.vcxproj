@@ -114,6 +114,7 @@ copy /Y "C:/Program Files (x86)/Windows Kits/8.0\bin\x86\d3dcompiler_46.dll" "$(
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CharacterControl\CharacterControlContext.h" />
+    <ClInclude Include="CharacterControl\Characters\SoldierGameControls.h" />
     <ClInclude Include="CharacterControl\Characters\SoldierNPC.h" />
     <ClInclude Include="CharacterControl\Characters\SoldierNPCAnimationSM.h" />
     <ClInclude Include="CharacterControl\Characters\SoldierNPCBehaviorSM.h" />
@@ -134,6 +135,7 @@ copy /Y "C:/Program Files (x86)/Windows Kits/8.0\bin\x86\d3dcompiler_46.dll" "$(
     <ClInclude Include="CharacterControl\testfunc_c_stdcall.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CharacterControl\Characters\SoldierGameControls.cpp" />
     <ClCompile Include="CharacterControl\Characters\SoldierNPC.cpp" />
     <ClCompile Include="CharacterControl\Characters\SoldierNPCAnimationSM.cpp" />
     <ClCompile Include="CharacterControl\Characters\SoldierNPCBehaviorSM.cpp" />

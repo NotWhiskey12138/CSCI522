@@ -17,6 +17,7 @@
 #include "CharacterControl/Client/ClientSpaceShip.h"
 #include "CharacterControl/Client/ClientSpaceShipControls.h"
 #include "CharacterControl/Characters/SoldierTPController.h"
+#include "CharacterControl/Characters/SoldierGameControls.h"
 
 
 using namespace PE::Components;
@@ -53,7 +54,7 @@ void CharacterControl::Register(PE::Components::LuaEnvironment *pLuaEnv, PE::Glo
 					ServerGameObjectManagerAddon::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 				ClientSpaceShip::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 				SpaceShipGameControls::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
-				
+				SoldierGameControls::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 			}
 			// end root.CharacterControl.Components
 			pLuaEnv->EndRegistrationTable();
