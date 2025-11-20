@@ -45,6 +45,7 @@ struct ClientGameObjectManagerAddon : public GameObjectManagerAddon
 	void createSpaceShip(int &threadOwnershipMask);
 	void createSoldierNPC(Vector3 pos, int &threadOwnershipMask);
 	void createSoldierNPC(Events::Event_CreateSoldierNPC *pTrueEvent);
+	void createPlayer(int& threadOwnershipMask);
 
 
 	//////////////////////////////////////////////////////////////////////////

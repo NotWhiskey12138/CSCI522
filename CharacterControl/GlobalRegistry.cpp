@@ -16,6 +16,7 @@
 #include "Tank/ClientTank.h"
 #include "CharacterControl/Client/ClientSpaceShip.h"
 #include "CharacterControl/Client/ClientSpaceShipControls.h"
+#include "CharacterControl/Player/PlayerController.h"
 
 
 using namespace PE::Components;
@@ -51,6 +52,9 @@ void CharacterControl::Register(PE::Components::LuaEnvironment *pLuaEnv, PE::Glo
 					ServerGameObjectManagerAddon::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 				ClientSpaceShip::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 				SpaceShipGameControls::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+				PlayerGameControls::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+				PlayerController::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+
 			}
 			// end root.CharacterControl.Components
 			pLuaEnv->EndRegistrationTable();

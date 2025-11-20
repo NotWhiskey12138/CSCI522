@@ -1,4 +1,4 @@
-
+﻿
 #include "ClientCharacterControlGame.h"
 
 #include "PrimeEngine/Scene/SkeletonInstance.h"
@@ -9,6 +9,8 @@
 #include "Characters/SoldierNPCAnimationSM.h"
 #include "CharacterControl/Characters/SoldierNPCAnimationSM.h"
 #include "CharacterControlContext.h"
+#include "CharacterControl/Player/PlayerController.h"
+
 #if PE_PLAT_IS_WIN32
 #include "test.h"
 #endif
@@ -63,6 +65,7 @@ int ClientCharacterControlGame::initGame()
 		m_pContext->getGameObjectManager()->addComponent(hGOMAddon);
 	}
 
+
 	bool spawnALotOfSoldiersForGpuAnim = false;
 
 	//create tank controls that will be enabled if tank is activated
@@ -87,6 +90,67 @@ int ClientCharacterControlGame::initGame()
 				i, m_pContext->m_gameThreadThreadOwnershipMask);
 		}
 #endif
+	}
+
+	//{
+	//	PE::Handle h("PlayerGameControls", sizeof(PlayerGameControls));
+	//	pGameCtx->m_pPlayerGameControls = new(h) PlayerGameControls(*m_pContext, m_arena, h);
+	//	pGameCtx->getPlayerGameControls()->addDefaultComponents();
+
+	//	// add it to game object manager addon
+	//	pGameCtx->getGameObjectManagerAddon()->addComponent(h);
+
+	//	// start deactivated. needs to be deactivated AFTER adding it to parent components
+	//	pGameCtx->getPlayerGameControls()->setEnabled(false);
+
+	//	if (true)
+	//	{
+	//		((ClientGameObjectManagerAddon*)(pGameCtx->getGameObjectManagerAddon()))->createSpaceShip(
+	//			m_pContext->m_gameThreadThreadOwnershipMask);
+	//	}
+
+	//}
+
+	{
+		PEINFO("=== Testing PlayerGameControls creation ===\n");
+
+		PE::Handle h("PlayerGameControls", sizeof(PlayerGameControls));
+		PEINFO("Step 1: Handle created\n");
+
+		pGameCtx->m_pPlayerGameControls = new(h) PlayerGameControls(*m_pContext, m_arena, h);
+		PEINFO("Step 2: PlayerGameControls object created\n");
+
+		pGameCtx->getPlayerGameControls()->addDefaultComponents();
+		pGameCtx->getGameObjectManagerAddon()->addComponent(h);
+		pGameCtx->getPlayerGameControls()->setEnabled(false);
+
+		if (true)  // ✅ 确认这里是 true
+		{
+			PEINFO("About to create player...\n");
+			((ClientGameObjectManagerAddon*)(pGameCtx->getGameObjectManagerAddon()))->createPlayer(
+				m_pContext->m_gameThreadThreadOwnershipMask);
+		}
+
+		PEINFO("=== PlayerGameControls test passed ===\n");
+	}
+	{
+		// 方法1：完全模仿 TankGameControls
+		PE::Handle h("PlayerGameControls", sizeof(PlayerGameControls));
+		PlayerGameControls* pPlayerControls = new(h) PlayerGameControls(*m_pContext, m_arena, h);
+
+		// 先不通过 pGameCtx，直接测试对象
+		if (pPlayerControls != nullptr)
+		{
+			PEINFO("PlayerGameControls pointer is valid: %p\n", pPlayerControls);
+
+			// 测试调用方法
+			pPlayerControls->addDefaultComponents();
+			PEINFO("addDefaultComponents succeeded\n");
+		}
+		else
+		{
+			PEINFO("PlayerGameControls pointer is NULL!\n");
+		}
 	}
 
 	{

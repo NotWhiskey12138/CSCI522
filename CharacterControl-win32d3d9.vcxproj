@@ -125,6 +125,7 @@ copy /Y "C:/Program Files (x86)/Windows Kits/8.0\bin\x86\d3dcompiler_46.dll" "$(
     <ClInclude Include="CharacterControl\Events\Events.h" />
     <ClInclude Include="CharacterControl\GameObjectMangerAddon.h" />
     <ClInclude Include="CharacterControl\GlobalRegistry.h" />
+    <ClInclude Include="CharacterControl\Player\PlayerController.h" />
     <ClInclude Include="CharacterControl\ServerCharacterControlGame.h" />
     <ClInclude Include="CharacterControl\ServerGameObjectManagerAddon.h" />
     <ClInclude Include="CharacterControl\Tank\ClientTank.h" />
@@ -144,6 +145,7 @@ copy /Y "C:/Program Files (x86)/Windows Kits/8.0\bin\x86\d3dcompiler_46.dll" "$(
     <ClCompile Include="CharacterControl\Events\Events.cpp" />
     <ClCompile Include="CharacterControl\GameObjectManagerAddon.cpp" />
     <ClCompile Include="CharacterControl\GlobalRegistry.cpp" />
+    <ClCompile Include="CharacterControl\Player\PlayerController.cpp" />
     <ClCompile Include="CharacterControl\ServerCharacterControlGame.cpp" />
     <ClCompile Include="CharacterControl\ServerGameObjectManagerAddon.cpp" />
     <ClCompile Include="CharacterControl\Tank\ClientTank.cpp" />

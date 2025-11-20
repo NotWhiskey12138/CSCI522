@@ -8,6 +8,7 @@ namespace CharacterControl {
 		struct GameObjectManagerAddon;
 		struct TankGameControls;
 		struct SpaceShipGameControls;
+		struct PlayerGameControls;
 	};
 
 	struct CharacterControlContext : PE::PEAllocatableAndDefragmentable
@@ -15,6 +16,8 @@ namespace CharacterControl {
 		Components::GameObjectManagerAddon *getGameObjectManagerAddon(){return m_pGameObjectManagerAddon;}
 		Components::TankGameControls *getTankGameControls(){return m_pTankGameControls;}
 		Components::SpaceShipGameControls *getSpaceShipGameControls(){return m_pSpaceShipGameControls;}
+		Components::PlayerGameControls* getPlayerGameControls() { return m_pPlayerGameControls; }
+		Components::PlayerGameControls* m_pPlayerGameControls;
 		Components::GameObjectManagerAddon *m_pGameObjectManagerAddon;
 		Components::TankGameControls *m_pTankGameControls;
 		Components::SpaceShipGameControls *m_pSpaceShipGameControls;

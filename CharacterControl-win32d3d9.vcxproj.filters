@@ -13,6 +13,9 @@
     <Filter Include="Tank">
       <UniqueIdentifier>{93CA8C7C-7F01-8E0D-28EE-731014040A0F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Player">
+      <UniqueIdentifier>{e6410878-4c97-4cb5-b304-9dbcf96423fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CharacterControl\CharacterControlContext.h" />
@@ -49,6 +52,9 @@
     <ClInclude Include="CharacterControl\WayPoint.h" />
     <ClInclude Include="CharacterControl\test.h" />
     <ClInclude Include="CharacterControl\testfunc_c_stdcall.h" />
+    <ClInclude Include="CharacterControl\Player\PlayerController.h">
+      <Filter>Player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CharacterControl\Characters\SoldierNPC.cpp">
@@ -83,6 +89,9 @@
     </ClCompile>
     <ClCompile Include="CharacterControl\WayPoint.cpp" />
     <ClCompile Include="CharacterControl\main.cpp" />
+    <ClCompile Include="CharacterControl\Player\PlayerController.cpp">
+      <Filter>Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Masm Include="CharacterControl\test.asm" />

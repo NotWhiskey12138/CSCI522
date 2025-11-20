@@ -6,6 +6,7 @@
 #include "WayPoint.h"
 #include "Tank/ClientTank.h"
 #include "CharacterControl/Client/ClientSpaceShip.h"
+#include "CharacterControl/Player/PlayerController.h"
 
 using namespace PE::Components;
 using namespace PE::Events;
@@ -245,6 +246,53 @@ void ClientGameObjectManagerAddon::do_MoveTank(PE::Events::Event *pEvt)
 			++itc;
 		}
 	}
+}
+
+// 在 ClientGameObjectManagerAddon.cpp 中添加
+
+void ClientGameObjectManagerAddon::createPlayer(int& threadOwnershipMask)
+{
+	//create hierarchy:
+	//scene root
+	//  scene node // tracks position/orientation
+	//    Player mesh
+
+	//game object manager
+	//  PlayerController
+	//    scene node
+
+	// 创建网格实例
+	PE::Handle hMeshInstance("MeshInstance", sizeof(MeshInstance));
+	MeshInstance* pMeshInstance = new(hMeshInstance) MeshInstance(*m_pContext, m_arena, hMeshInstance);
+	pMeshInstance->addDefaultComponents();
+	pMeshInstance->initFromFile("kingtiger.x_main_mesh.mesha", "Default", threadOwnershipMask);
+
+	// 创建场景节点
+	PE::Handle hSN("SCENE_NODE", sizeof(SceneNode));
+	SceneNode* pSN = new(hSN) SceneNode(*m_pContext, m_arena, hSN);
+	pSN->addDefaultComponents();
+
+	Vector3 spawnPos(0, 0, 0.0f);
+	pSN->m_base.setPos(spawnPos);
+
+	pSN->addComponent(hMeshInstance);
+
+	RootSceneNode::Instance()->addComponent(hSN);
+
+	// 创建玩家控制器
+	PE::Handle hPlayerController("PlayerController", sizeof(PlayerController));
+	PlayerController* pPlayerController = new(hPlayerController) PlayerController(
+		*m_pContext, m_arena, hPlayerController, spawnPos, 0.05f);
+	pPlayerController->addDefaultComponents();
+
+	addComponent(hPlayerController);
+
+	// 添加场景节点引用到控制器
+	static int allowedEventsToPropagate[] = { 0 };
+	pPlayerController->addComponent(hSN, &allowedEventsToPropagate[0]);
+
+	// 激活玩家控制
+	pPlayerController->activate();
 }
 
 }
