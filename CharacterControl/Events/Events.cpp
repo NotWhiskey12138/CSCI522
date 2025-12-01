@@ -19,6 +19,18 @@ void Event_CreateSoldierNPC::SetLuaFunctions(PE::Components::LuaEnvironment *pLu
 	luaL_register(luaVM, 0, l_Event_CreateSoldierNPC);
 }
 
+PE_IMPLEMENT_CLASS0(Event_CreateVampire, PE::Events::Event_CREATE_MESH);
+
+void Event_CreateVampire::SetLuaFunctions(PE::Components::LuaEnvironment* pLuaEnv, lua_State* luaVM)
+{
+	static const struct luaL_Reg l_Event_CreateVampire[] = {
+		{"Construct", l_Construct},
+		{NULL, NULL} // sentinel
+	};
+	// register the functions in current lua table which is the table for Event_CreateVampire
+	luaL_register(luaVM, 0, l_Event_CreateVampire);
+}
+
 int Event_CreateSoldierNPC::l_Construct(lua_State* luaVM)
 {
     PE::Handle h("EVENT", sizeof(Event_CreateSoldierNPC));
@@ -80,6 +92,71 @@ int Event_CreateSoldierNPC::l_Construct(lua_State* luaVM)
 	pEvt->m_n = n;
 
 	LuaGlue::pushTableBuiltFromHandle(luaVM, h); 
+
+	return 1;
+}
+
+int Event_CreateVampire::l_Construct(lua_State* luaVM)
+{
+	PE::Handle h("EVENT", sizeof(Event_CreateVampire));
+
+	// get arguments from stack
+	int numArgs, numArgsConst;
+	numArgs = numArgsConst = 19;
+
+	PE::GameContext* pContext = (PE::GameContext*)(lua_touserdata(luaVM, -numArgs--));
+
+	// this function should only be called frm game thread, so we can use game thread thread owenrship mask
+	Event_CreateVampire* pEvt = new(h) Event_CreateVampire(pContext->m_gameThreadThreadOwnershipMask);
+
+	const char* name = lua_tostring(luaVM, -numArgs--);
+	const char* package = lua_tostring(luaVM, -numArgs--);
+
+	const char* gunMeshName = lua_tostring(luaVM, -numArgs--);
+	const char* gunMeshPackage = lua_tostring(luaVM, -numArgs--);
+
+	float positionFactor = 1.0f / 100.0f;
+
+	Vector3 playerPos, u, v, n;
+	playerPos.m_x = (float)lua_tonumber(luaVM, -numArgs--) * positionFactor;
+	playerPos.m_y = (float)lua_tonumber(luaVM, -numArgs--) * positionFactor;
+	playerPos.m_z = (float)lua_tonumber(luaVM, -numArgs--) * positionFactor;
+
+	u.m_x = (float)lua_tonumber(luaVM, -numArgs--); u.m_y = (float)lua_tonumber(luaVM, -numArgs--); u.m_z = (float)lua_tonumber(luaVM, -numArgs--);
+	v.m_x = (float)lua_tonumber(luaVM, -numArgs--); v.m_y = (float)lua_tonumber(luaVM, -numArgs--); v.m_z = (float)lua_tonumber(luaVM, -numArgs--);
+	n.m_x = (float)lua_tonumber(luaVM, -numArgs--); n.m_y = (float)lua_tonumber(luaVM, -numArgs--); n.m_z = (float)lua_tonumber(luaVM, -numArgs--);
+
+	pEvt->m_peuuid = LuaGlue::readPEUUID(luaVM, -numArgs--);
+
+	const char* wayPointName = NULL;
+
+	if (!lua_isnil(luaVM, -numArgs))
+	{
+		// have patrol waypoint name
+		wayPointName = lua_tostring(luaVM, -numArgs--);
+	}
+	else
+		// ignore
+		numArgs--;
+
+
+	// set data values before popping memory off stack
+	StringOps::writeToString(name, pEvt->m_meshFilename, 255);
+	StringOps::writeToString(package, pEvt->m_package, 255);
+
+	//StringOps::writeToString(gunMeshName, pEvt->m_gunMeshName, 64);
+	//StringOps::writeToString(gunMeshPackage, pEvt->m_gunMeshPackage, 64);
+	StringOps::writeToString(wayPointName, pEvt->m_patrolWayPoint, 32);
+
+	lua_pop(luaVM, numArgsConst); //Second arg is a count of how many to pop
+
+	pEvt->hasCustomOrientation = true;
+	pEvt->m_pos = playerPos;
+	pEvt->m_u = u;
+	pEvt->m_v = v;
+	pEvt->m_n = n;
+
+	LuaGlue::pushTableBuiltFromHandle(luaVM, h);
 
 	return 1;
 }

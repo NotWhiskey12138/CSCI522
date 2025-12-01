@@ -17,6 +17,12 @@
 #include "CharacterControl/Client/ClientSpaceShip.h"
 #include "CharacterControl/Client/ClientSpaceShipControls.h"
 
+//Vampire
+#include "Characters/Vampire/Vampire.h"
+#include "Characters/Vampire/VampireAnimationSM.h"
+#include "Characters/Vampire/VampireBehaviorSM.h"
+#include "Characters/Vampire/VampireMovementSM.h"
+
 
 using namespace PE::Components;
 using namespace CharacterControl::Components;
@@ -51,6 +57,12 @@ void CharacterControl::Register(PE::Components::LuaEnvironment *pLuaEnv, PE::Glo
 					ServerGameObjectManagerAddon::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 				ClientSpaceShip::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 				SpaceShipGameControls::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+
+				//VampireComponent
+				Vampire::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+				VampireAnimationSM::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+				VampireBehaviorSM::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+				VampireMovementSM::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 			}
 			// end root.CharacterControl.Components
 			pLuaEnv->EndRegistrationTable();
@@ -70,6 +82,15 @@ void CharacterControl::Register(PE::Components::LuaEnvironment *pLuaEnv, PE::Glo
 				Event_MoveTank_S_to_C::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 				Event_Tank_Throttle::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 				Event_Tank_Turn::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+
+				//Vampire Events
+				VampireAnimSM_Event_STOP::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+				VampireAnimSM_Event_WALK::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+				Event_CreateVampire::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+				VampireMovementSM_Event_MOVE_TO::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+				VampireMovementSM_Event_STOP::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+				VampireMovementSM_Event_TARGET_REACHED::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
+
 			}
 			// end root.CharacterControl.Events
 			pLuaEnv->EndRegistrationTable();

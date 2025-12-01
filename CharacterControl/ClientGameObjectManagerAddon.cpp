@@ -6,6 +6,7 @@
 #include "WayPoint.h"
 #include "Tank/ClientTank.h"
 #include "CharacterControl/Client/ClientSpaceShip.h"
+#include "CharacterControl/Characters/Vampire/Vampire.h"
 
 using namespace PE::Components;
 using namespace PE::Events;
@@ -23,6 +24,7 @@ void ClientGameObjectManagerAddon::addDefaultComponents()
 
 	PE_REGISTER_EVENT_HANDLER(Event_CreateSoldierNPC, ClientGameObjectManagerAddon::do_CreateSoldierNPC);
 	PE_REGISTER_EVENT_HANDLER(Event_CREATE_WAYPOINT, ClientGameObjectManagerAddon::do_CREATE_WAYPOINT);
+	PE_REGISTER_EVENT_HANDLER(Event_CreateVampire, ClientGameObjectManagerAddon::do_CreateVampire);
 
 	// note this component (game obj addon) is added to game object manager after network manager, so network manager will process this event first
 	PE_REGISTER_EVENT_HANDLER(PE::Events::Event_SERVER_CLIENT_CONNECTION_ACK, ClientGameObjectManagerAddon::do_SERVER_CLIENT_CONNECTION_ACK);
@@ -66,6 +68,41 @@ void ClientGameObjectManagerAddon::createSoldierNPC(Event_CreateSoldierNPC *pTru
 	// add the soldier as component to the ObjecManagerComponentAddon
 	// all objects of this demo live in the ObjecManagerComponentAddon
 	addComponent(hSoldierNPC);
+}
+
+void ClientGameObjectManagerAddon::do_CreateVampire(PE::Events::Event* pEvt)
+{
+	assert(pEvt->isInstanceOf<Event_CreateVampire>());
+
+	Event_CreateVampire* pTrueEvent = (Event_CreateVampire*)(pEvt);
+
+	createVampire(pTrueEvent);
+}
+
+void ClientGameObjectManagerAddon::createVampire(Vector3 pos, int& threadOwnershipMask)
+{
+	Event_CreateVampire evt(threadOwnershipMask);
+	evt.m_pos = pos;
+	evt.m_u = Vector3(1.0f, 0, 0);
+	evt.m_v = Vector3(0, 1.0f, 0);
+	evt.m_n = Vector3(0, 0, 1.0f);
+	StringOps::writeToString("VampireTransform.mesha", evt.m_meshFilename, 255);
+	StringOps::writeToString("Vampire", evt.m_package, 255);
+	StringOps::writeToString("", evt.m_patrolWayPoint, 32);
+	createVampire(&evt);
+}
+
+void ClientGameObjectManagerAddon::createVampire(Event_CreateVampire* pTrueEvent)
+{
+	PEINFO("CharacterControl: GameObjectManagerAddon: Creating CreateVampire\n");
+
+	PE::Handle hVampire("Vampire", sizeof(Vampire));
+	Vampire* pVampire = new(hVampire) Vampire(*m_pContext, m_arena, hVampire, pTrueEvent);
+	pVampire->addDefaultComponents();
+
+	// add the vampire as component to the ObjecManagerComponentAddon
+	// all objects of this demo live in the ObjecManagerComponentAddon
+	addComponent(hVampire);
 }
 
 void ClientGameObjectManagerAddon::do_CREATE_WAYPOINT(PE::Events::Event *pEvt)

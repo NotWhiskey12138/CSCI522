@@ -13,6 +13,9 @@
     <Filter Include="Tank">
       <UniqueIdentifier>{93CA8C7C-7F01-8E0D-28EE-731014040A0F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Characters\Vampire">
+      <UniqueIdentifier>{7fdc83af-ee85-47bb-a791-958cd51a392a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CharacterControl\CharacterControlContext.h" />
@@ -49,6 +52,18 @@
     <ClInclude Include="CharacterControl\WayPoint.h" />
     <ClInclude Include="CharacterControl\test.h" />
     <ClInclude Include="CharacterControl\testfunc_c_stdcall.h" />
+    <ClInclude Include="CharacterControl\Characters\Vampire\Vampire.h">
+      <Filter>Characters\Vampire</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterControl\Characters\Vampire\VampireAnimationSM.h">
+      <Filter>Characters\Vampire</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterControl\Characters\Vampire\VampireBehaviorSM.h">
+      <Filter>Characters\Vampire</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterControl\Characters\Vampire\VampireMovementSM.h">
+      <Filter>Characters\Vampire</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CharacterControl\Characters\SoldierNPC.cpp">
@@ -83,6 +98,18 @@
     </ClCompile>
     <ClCompile Include="CharacterControl\WayPoint.cpp" />
     <ClCompile Include="CharacterControl\main.cpp" />
+    <ClCompile Include="CharacterControl\Characters\Vampire\Vampire.cpp">
+      <Filter>Characters\Vampire</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterControl\Characters\Vampire\VampireAnimationSM.cpp">
+      <Filter>Characters\Vampire</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterControl\Characters\Vampire\VampireBehaviorSM.cpp">
+      <Filter>Characters\Vampire</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterControl\Characters\Vampire\VampireMovementSM.cpp">
+      <Filter>Characters\Vampire</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Masm Include="CharacterControl\test.asm" />

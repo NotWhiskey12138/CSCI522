@@ -1,4 +1,3 @@
-
 #include "ClientCharacterControlGame.h"
 
 #include "PrimeEngine/Scene/SkeletonInstance.h"
@@ -7,7 +6,7 @@
 #include "Tank/ClientTank.h"
 #include "Client/ClientSpaceShipControls.h"
 #include "Characters/SoldierNPCAnimationSM.h"
-#include "CharacterControl/Characters/SoldierNPCAnimationSM.h"
+#include "CharacterControl/Characters/Vampire/VampireAnimationSM.h"
 #include "CharacterControlContext.h"
 #if PE_PLAT_IS_WIN32
 #include "test.h"
