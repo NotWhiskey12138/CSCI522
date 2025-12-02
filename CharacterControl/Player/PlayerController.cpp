@@ -140,6 +140,7 @@ namespace CharacterControl {
             , m_moveSpeed(5.0f)        // 5 units/second
             , m_rotateSpeed(3.14159f)  // 180 degrees/second
             , m_currentRotation(0)
+			, m_wasMoving(false)
         {
         }
 
@@ -209,21 +210,25 @@ namespace CharacterControl {
                 pFirstSN->m_base.setN(Vector3(-sin(m_currentRotation), 0, cos(m_currentRotation)));
                 pFirstSN->m_base.setV(Vector3(0, 1, 0));
 
-                SkeletonInstance* pSkelInst = pFirstSN->getFirstComponent<SkeletonInstance>();
-                if (pSkelInst)
+                if (isMoving != m_wasMoving)
                 {
-                    if (isMoving)
+                    SkeletonInstance* pSkelInst = pFirstSN->getFirstComponent<SkeletonInstance>();
+                    if (pSkelInst)
                     {
-                        // 播放行走动画
-                        CharacterControl::Events::SoldierNPCAnimSM_Event_WALK walkEvt;
-                        pSkelInst->handleEvent(&walkEvt);
+                        if (isMoving)
+                        {
+                            // 播放行走动画
+                            CharacterControl::Events::SoldierNPCAnimSM_Event_WALK walkEvt;
+                            pSkelInst->handleEvent(&walkEvt);
+                        }
+                        else
+                        {
+                            // 播放停止动画
+                            CharacterControl::Events::SoldierNPCAnimSM_Event_STOP stopEvt;
+                            pSkelInst->handleEvent(&stopEvt);
+                        }
                     }
-                    else
-                    {
-                        // 播放停止动画
-                        CharacterControl::Events::SoldierNPCAnimSM_Event_STOP stopEvt;
-                        pSkelInst->handleEvent(&stopEvt);
-                    }
+					m_wasMoving = isMoving;
                 }
 
                 // 4. 网络同步计时

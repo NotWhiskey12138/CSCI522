@@ -82,6 +82,7 @@ namespace CharacterControl {
             float m_currentRotation; // 当前Y轴旋转角度
 
 			bool isMoving; // 检测是否在移动
+			bool m_wasMoving; // 上一帧是否在移动
         };
 
     }; // namespace Components

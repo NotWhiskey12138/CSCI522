@@ -35,24 +35,27 @@ void SoldierNPCAnimationSM::addDefaultComponents()
 
 void SoldierNPCAnimationSM::do_SoldierNPCAnimSM_Event_STOP(PE::Events::Event *pEvt)
 {
-	
+	//PEINFO(">>> AnimSM received STOP event, current state: %d\n", m_curId);
 	if (m_curId != SoldierNPCAnimationSM::STAND)
 	{
 		m_curId = SoldierNPCAnimationSM::STAND;
-		
+		//PEINFO(">>> Switching to STAND animation\n");
 		setAnimation(0, SoldierNPCAnimationSM::STAND,
-		0, 0, 1, 1,
+		0, 0, 0.5, 0.5,
 		PE::LOOPING);
 	}
 }
 
 void SoldierNPCAnimationSM::do_SoldierNPCAnimSM_Event_WALK(PE::Events::Event *pEvt)
 {
+	//PEINFO(">>> AnimSM received WALK event, current state: %d\n", m_curId);
 	if (m_curId != SoldierNPCAnimationSM::WALK)
 	{
+
 		m_curId = SoldierNPCAnimationSM::WALK;
+		/*PEINFO(">>> Switching to WALK animation\n");*/
 		setAnimation(0, SoldierNPCAnimationSM::WALK,
-			0, 0, 1, 1,
+			0, 0, 0.5, 0.5,
 			PE::LOOPING);
 	}
 }

@@ -55,6 +55,7 @@
     <ClInclude Include="CharacterControl\Player\PlayerController.h">
       <Filter>Player</Filter>
     </ClInclude>
+    <ClInclude Include="SimpleStartMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CharacterControl\Characters\SoldierNPC.cpp">
