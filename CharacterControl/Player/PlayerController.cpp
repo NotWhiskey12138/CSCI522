@@ -63,19 +63,19 @@ namespace CharacterControl {
             // WASD 移动
             if (Event_KEY_W_HELD::GetClassId() == pEvt->getClassId())
             {
-                m_forward = 1.0f;
+                m_forward = -1.0f;
             }
             else if (Event_KEY_S_HELD::GetClassId() == pEvt->getClassId())
             {
-                m_forward = -1.0f;
+                m_forward = 1.0f;
             }
             else if (Event_KEY_A_HELD::GetClassId() == pEvt->getClassId())
             {
-                m_strafe = -1.0f;
+                m_strafe = 1.0f;
             }
             else if (Event_KEY_D_HELD::GetClassId() == pEvt->getClassId())
             {
-                m_strafe = 1.0f;
+                m_strafe = -1.0f;
             }
             // 箭头键旋转
             else if (Event_KEY_LEFT_HELD::GetClassId() == pEvt->getClassId())
@@ -253,7 +253,12 @@ namespace CharacterControl {
                 {
                     // 摄像机位置：角色后方偏上
                     pCamSN->m_base.loadIdentity();
-                    pCamSN->m_base.setPos(Vector3(0, 3.0f, -5.0f)); // 后方5米，上方3米
+                    pCamSN->m_base.setPos(Vector3(0, 3.0f, 5.0f)); // 后方5米，上方3米
+
+                    // 让摄像机朝向 -Z（看向角色）
+                    pCamSN->m_base.setU(Vector3(-1, 0, 0));  // 右
+                    pCamSN->m_base.setV(Vector3(0, 1, 0));   // 上
+                    pCamSN->m_base.setN(Vector3(0, 0, -1));  // 前（朝向角色）
                 }
             }
         }
