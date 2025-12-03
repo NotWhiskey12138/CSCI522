@@ -38,6 +38,7 @@ namespace CharacterControl {
             m_forward = 0;
             m_strafe = 0;
             m_rotate = 0;
+			m_shoot = false;
 
             // 处理输入队列
             PE::Handle iqh = PE::Events::EventQueueManager::Instance()->getEventQueueHandle("input");
@@ -64,6 +65,7 @@ namespace CharacterControl {
             if (Event_KEY_W_HELD::GetClassId() == pEvt->getClassId())
             {
                 m_forward = -1.0f;
+                PEINFO("W press\n");
             }
             else if (Event_KEY_S_HELD::GetClassId() == pEvt->getClassId())
             {
@@ -85,6 +87,11 @@ namespace CharacterControl {
             else if (Event_KEY_RIGHT_HELD::GetClassId() == pEvt->getClassId())
             {
                 m_rotate = -1.0f; // 右转
+            }
+            else if (Event_KEY_SPACE_HELD::GetClassId() == pEvt->getClassId()) 
+            {
+				m_shoot = true; // 开火
+				PEINFO("Space pressed! m_shoot = true\n");
             }
         }
 
@@ -141,6 +148,7 @@ namespace CharacterControl {
             , m_rotateSpeed(3.14159f)  // 180 degrees/second
             , m_currentRotation(0)
 			, m_wasMoving(false)
+			, m_isShooting(false)
         {
         }
 
@@ -210,25 +218,47 @@ namespace CharacterControl {
                 pFirstSN->m_base.setN(Vector3(-sin(m_currentRotation), 0, cos(m_currentRotation)));
                 pFirstSN->m_base.setV(Vector3(0, 1, 0));
 
-                if (isMoving != m_wasMoving)
+                bool wantShoot = pCtrl->m_shoot;
+
+                SkeletonInstance* pSkelInst = pFirstSN->getFirstComponent<SkeletonInstance>();
+                if (pSkelInst)
                 {
-                    SkeletonInstance* pSkelInst = pFirstSN->getFirstComponent<SkeletonInstance>();
-                    if (pSkelInst)
+                    // 射击状态变化
+                    if (wantShoot != m_isShooting)
                     {
-                        if (isMoving)
+                        m_isShooting = wantShoot;
+
+                        if (m_isShooting)
                         {
-                            // 播放行走动画
+                            CharacterControl::Events::SoldierNPCAnimSM_Event_SHOOT shootEvt;
+                            pSkelInst->handleEvent(&shootEvt);
+                        }
+                        else if (isMoving)
+                        {
                             CharacterControl::Events::SoldierNPCAnimSM_Event_WALK walkEvt;
                             pSkelInst->handleEvent(&walkEvt);
                         }
                         else
                         {
-                            // 播放停止动画
                             CharacterControl::Events::SoldierNPCAnimSM_Event_STOP stopEvt;
                             pSkelInst->handleEvent(&stopEvt);
                         }
                     }
-					m_wasMoving = isMoving;
+                    // 移动状态变化（只在非射击时处理）
+                    else if (!m_isShooting && isMoving != m_wasMoving)
+                    {
+                        if (isMoving)
+                        {
+                            CharacterControl::Events::SoldierNPCAnimSM_Event_WALK walkEvt;
+                            pSkelInst->handleEvent(&walkEvt);
+                        }
+                        else
+                        {
+                            CharacterControl::Events::SoldierNPCAnimSM_Event_STOP stopEvt;
+                            pSkelInst->handleEvent(&stopEvt);
+                        }
+                        m_wasMoving = isMoving;
+                    }
                 }
 
                 // 4. 网络同步计时

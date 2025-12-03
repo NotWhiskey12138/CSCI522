@@ -24,6 +24,7 @@ namespace CharacterControl {
                 , m_forward(0)
                 , m_strafe(0)
                 , m_rotate(0)
+				, m_shoot(false)
                 , m_frameTime(0)             
                 , m_pQueueManager(nullptr)
             {
@@ -49,6 +50,7 @@ namespace CharacterControl {
             float m_forward;   // W/S - 前后移动 (-1.0 to 1.0)
             float m_strafe;    // A/D - 左右平移 (-1.0 to 1.0)
             float m_rotate;    // 左右箭头 - 旋转 (-1.0 to 1.0)
+            bool m_shoot;// 开火标志
         };
 
         // 主控制器 - 负责角色逻辑和状态
@@ -83,6 +85,8 @@ namespace CharacterControl {
 
 			bool isMoving; // 检测是否在移动
 			bool m_wasMoving; // 上一帧是否在移动
+			bool m_isShooting; // 检测是否在开火
+			
         };
 
     }; // namespace Components

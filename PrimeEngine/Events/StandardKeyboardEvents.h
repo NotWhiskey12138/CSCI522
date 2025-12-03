@@ -74,6 +74,11 @@ struct Event_KEY_UP_HELD : public Event {
 	virtual ~Event_KEY_UP_HELD(){}
 };
 
+struct Event_KEY_SPACE_HELD : public Event {
+	PE_DECLARE_CLASS(Event_KEY_SPACE_HELD);
+	virtual ~Event_KEY_SPACE_HELD() {}
+};
+
 }; // namespace Events
 }; // namespace PE
 

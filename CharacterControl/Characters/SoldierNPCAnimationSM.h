@@ -28,6 +28,11 @@ struct SoldierNPCAnimSM_Event_WALK : public PE::Events::Event {
 	SoldierNPCAnimSM_Event_WALK() {}
 };
 
+struct SoldierNPCAnimSM_Event_SHOOT : public PE::Events::Event {
+	PE_DECLARE_CLASS(SoldierNPCAnimSM_Event_SHOOT);
+	SoldierNPCAnimSM_Event_SHOOT() {}
+};
+
 // todo add events for shooting (sent by weapons state machine
 
 };
@@ -56,6 +61,8 @@ struct SoldierNPCAnimationSM : public PE::Components::DefaultAnimationSM
 	virtual void do_SoldierNPCAnimSM_Event_STOP(PE::Events::Event *pEvt);
 	PE_DECLARE_IMPLEMENT_EVENT_HANDLER_WRAPPER(do_SoldierNPCAnimSM_Event_WALK)
 	virtual void do_SoldierNPCAnimSM_Event_WALK(PE::Events::Event *pEvt);
+	PE_DECLARE_IMPLEMENT_EVENT_HANDLER_WRAPPER(do_SoldierNPCAnimSM_Event_SHOOT)
+	virtual void do_SoldierNPCAnimSM_Event_SHOOT(PE::Events::Event* pEvt);
 
 
 	AnimId m_curId;

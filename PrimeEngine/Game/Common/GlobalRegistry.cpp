@@ -187,7 +187,7 @@ void Register(PE::Components::LuaEnvironment *pLuaEnv, PE::GlobalRegistry *pRegi
 					PE::Events::Event_KEY_DOWN_HELD::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 					PE::Events::Event_KEY_RIGHT_HELD::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 					PE::Events::Event_KEY_UP_HELD::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
-
+					PE::Events::Event_KEY_SPACE_HELD::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 					PE::Events::Event_SERVER_CLIENT_CONNECTION_ACK::InitializeAndRegister(pLuaEnv, pRegistry, setLuaMetaDataOnly);
 
 			}
