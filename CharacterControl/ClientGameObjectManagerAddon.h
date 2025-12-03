@@ -2,9 +2,17 @@
 #define _CHARACTER_CONTROL_CLIENT_GAME_OBJ_MANAGER_ADDON_
 
 #include "GameObjectMangerAddon.h"
+#include "PrimeEngine/Math/Vector3.h"
 #include "Events/Events.h"
 
 #include "WayPoint.h"
+
+namespace CharacterControl {
+	namespace Components {
+		struct SoldierNPC;
+	}
+}
+
 
 namespace CharacterControl
 {
@@ -54,6 +62,11 @@ struct ClientGameObjectManagerAddon : public GameObjectManagerAddon
 	//
 	// waypoint search
 	WayPoint *getWayPoint(const char *name);
+
+	SoldierNPC* findSoldierNPCByRay(const Vector3& rayOrigin, const Vector3& rayDir, float maxDist, float& outDist);
+	bool rayAABBIntersect(const Vector3& rayOrigin, const Vector3& rayDir,
+		const Vector3& aabbMin, const Vector3& aabbMax,
+		float maxDist, float& outDist);
 };
 
 

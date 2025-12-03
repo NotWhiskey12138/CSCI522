@@ -86,7 +86,15 @@ namespace CharacterControl {
 			bool isMoving; // 检测是否在移动
 			bool m_wasMoving; // 上一帧是否在移动
 			bool m_isShooting; // 检测是否在开火
-			
+
+            // 射击参数
+            float m_shootCooldown;
+            float m_shootCooldownTimer;
+            float m_shootDamage;
+            float m_shootRange;
+
+            // 射击方法
+            void performShoot();
         };
 
     }; // namespace Components

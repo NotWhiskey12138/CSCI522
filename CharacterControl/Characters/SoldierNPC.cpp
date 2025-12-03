@@ -11,6 +11,8 @@
 #include "SoldierNPCBehaviorSM.h"
 
 
+
+
 using namespace PE;
 using namespace PE::Components;
 using namespace CharacterControl::Events;
@@ -166,6 +168,13 @@ SoldierNPC::SoldierNPC(PE::GameContext &context, PE::MemoryArena arena, PE::Hand
 	// start the soldier
 	pSoldierBehaviorSM->start();
 #endif
+
+	// 初始化生命值和AABB
+	m_health = 100.0f;
+	m_maxHealth = 100.0f;
+	m_isDead = false;
+	m_aabbMin = Vector3(-0.5f, 0.0f, -0.5f);
+	m_aabbMax = Vector3(0.5f, 2.0f, 0.5f);
 }
 
 void SoldierNPC::addDefaultComponents()
@@ -173,6 +182,63 @@ void SoldierNPC::addDefaultComponents()
 	Component::addDefaultComponents();
 
 	// custom methods of this component
+}
+
+void SoldierNPC::takeDamage(float damage)
+{
+	if (m_isDead) return;
+
+	m_health -= damage;
+	PEINFO("SoldierNPC took %.1f damage, health: %.1f\n", damage, m_health);
+
+	if (m_health <= 0)
+	{
+		m_health = 0;
+		m_isDead = true;
+		PEINFO("SoldierNPC died!\n");
+
+		// 找到主场景节点
+		PE::Components::SceneNode* pMainSN = getFirstComponent<PE::Components::SceneNode>();
+		if (pMainSN)
+		{
+
+			// 找到子场景节点
+			PE::Components::SceneNode* pChildSN = pMainSN->getFirstComponent<PE::Components::SceneNode>();
+			if (pChildSN)
+			{
+
+				// 找到旋转场景节点
+				PE::Components::SceneNode* pRotateSN = pChildSN->getFirstComponent<PE::Components::SceneNode>();
+				if (pRotateSN)
+				{
+
+					// 找到骨骼实例
+					PE::Components::SkeletonInstance* pSkelInst = pRotateSN->getFirstComponent<PE::Components::SkeletonInstance>();
+					if (pSkelInst)
+					{
+						Events::SoldierNPCAnimSM_Event_DIE dieEvt;
+						pSkelInst->handleEvent(&dieEvt);
+					}
+				}
+			}
+		}
+	}
+}
+
+void SoldierNPC::getWorldAABB(Vector3& outMin, Vector3& outMax)
+{
+	PE::Components::SceneNode* pSN = getFirstComponent<PE::Components::SceneNode>();
+	if (pSN)
+	{
+		Vector3 worldPos = pSN->m_base.getPos();
+		outMin = worldPos + m_aabbMin;
+		outMax = worldPos + m_aabbMax;
+	}
+	else
+	{
+		outMin = m_aabbMin;
+		outMax = m_aabbMax;
+	}
 }
 
 }; // namespace Components

@@ -16,6 +16,9 @@
 #include "CharacterControl/Events/Events.h"
 #include "CharacterControl/Characters/SoldierNPCAnimationSM.h"
 
+#include "CharacterControl/Characters/SoldierNPC.h"
+#include "CharacterControl/ClientGameObjectManagerAddon.h"
+
 using namespace PE::Components;
 using namespace PE::Events;
 
@@ -65,7 +68,7 @@ namespace CharacterControl {
             if (Event_KEY_W_HELD::GetClassId() == pEvt->getClassId())
             {
                 m_forward = -1.0f;
-                PEINFO("W press\n");
+               /* PEINFO("W press\n");*/
             }
             else if (Event_KEY_S_HELD::GetClassId() == pEvt->getClassId())
             {
@@ -91,7 +94,7 @@ namespace CharacterControl {
             else if (Event_KEY_SPACE_HELD::GetClassId() == pEvt->getClassId()) 
             {
 				m_shoot = true; // 开火
-				PEINFO("Space pressed! m_shoot = true\n");
+			/*	PEINFO("Space pressed! m_shoot = true\n");*/
             }
         }
 
@@ -149,6 +152,10 @@ namespace CharacterControl {
             , m_currentRotation(0)
 			, m_wasMoving(false)
 			, m_isShooting(false)
+            , m_shootCooldown(0.3f)
+            , m_shootCooldownTimer(0)
+            , m_shootDamage(25.0f)
+            , m_shootRange(100.0f)
         {
         }
 
@@ -179,6 +186,18 @@ namespace CharacterControl {
                 PlayerGameControls* pCtrl = pCtx->getPlayerGameControls();
 
                 float deltaTime = pRealEvt->m_frameTime;
+
+                // === 添加射击逻辑 ===
+                if (m_shootCooldownTimer > 0)
+                {
+                    m_shootCooldownTimer -= deltaTime;
+                }
+
+                if (pCtrl->m_shoot && m_shootCooldownTimer <= 0)
+                {
+                    performShoot();
+                    m_shootCooldownTimer = m_shootCooldown;
+                }
 
                 // 1. 处理旋转（箭头键）
                 if (fabs(pCtrl->m_rotate) > 0.1f) // 死区
@@ -338,5 +357,40 @@ namespace CharacterControl {
             m_pContext->get<CharacterControlContext>()->getPlayerGameControls()->setEnabled(true);
         }
 
+
+        void PlayerController::performShoot()
+        {
+            PE::Handle hFirstSN = getFirstComponentHandle<SceneNode>();
+            if (!hFirstSN.isValid()) return;
+
+            SceneNode* pFirstSN = hFirstSN.getObject<SceneNode>();
+
+            Vector3 rayOrigin = pFirstSN->m_base.getPos() + Vector3(0, 1.5f, 0);
+
+            Vector3 rayDir = pFirstSN->m_base.getN();
+            rayDir = -rayDir;
+            rayDir.normalize();
+
+            PEINFO("=== Shooting ===\n");
+            PEINFO("Player pos: (%.2f, %.2f, %.2f)\n", rayOrigin.m_x, rayOrigin.m_y, rayOrigin.m_z);
+            PEINFO("Ray dir: (%.2f, %.2f, %.2f)\n", rayDir.m_x, rayDir.m_y, rayDir.m_z);
+            PEINFO("Current rotation: %.2f\n", m_currentRotation);
+
+            CharacterControlContext* pCtx = m_pContext->get<CharacterControlContext>();
+            ClientGameObjectManagerAddon* pGOM = (ClientGameObjectManagerAddon*)pCtx->getGameObjectManagerAddon();
+
+            float hitDist;
+            SoldierNPC* pEnemy = pGOM->findSoldierNPCByRay(rayOrigin, rayDir, m_shootRange, hitDist);
+
+            if (pEnemy)
+            {
+                pEnemy->takeDamage(m_shootDamage);
+                PEINFO("Hit enemy at distance %.2f!\n", hitDist);
+            }
+            else
+            {
+                PEINFO("Missed!\n");
+            }
+        }
     }
 }

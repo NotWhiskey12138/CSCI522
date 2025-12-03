@@ -12,6 +12,8 @@
 #include "PrimeEngine/Scene/SkeletonInstance.h"
 #include "CharacterControl/Events/Events.h"
 
+#include "Characters/SoldierNPC.h"
+
 using namespace PE::Components;
 using namespace PE::Events;
 using namespace CharacterControl::Events;
@@ -339,6 +341,105 @@ void ClientGameObjectManagerAddon::createPlayer(int& threadOwnershipMask)
 
 	// 激活玩家控制
 	pPlayerController->activate();
+}
+
+bool ClientGameObjectManagerAddon::rayAABBIntersect(const Vector3& rayOrigin, const Vector3& rayDir,
+	const Vector3& aabbMin, const Vector3& aabbMax,
+	float maxDist, float& outDist)
+{
+	float tmin = 0.0f;
+	float tmax = maxDist;
+
+	// X轴
+	if (fabs(rayDir.m_x) < 0.0001f)
+	{
+		if (rayOrigin.m_x < aabbMin.m_x || rayOrigin.m_x > aabbMax.m_x)
+			return false;
+	}
+	else
+	{
+		float t1 = (aabbMin.m_x - rayOrigin.m_x) / rayDir.m_x;
+		float t2 = (aabbMax.m_x - rayOrigin.m_x) / rayDir.m_x;
+		if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+		tmin = (t1 > tmin) ? t1 : tmin;
+		tmax = (t2 < tmax) ? t2 : tmax;
+		if (tmin > tmax) return false;
+	}
+
+	// Y轴
+	if (fabs(rayDir.m_y) < 0.0001f)
+	{
+		if (rayOrigin.m_y < aabbMin.m_y || rayOrigin.m_y > aabbMax.m_y)
+			return false;
+	}
+	else
+	{
+		float t1 = (aabbMin.m_y - rayOrigin.m_y) / rayDir.m_y;
+		float t2 = (aabbMax.m_y - rayOrigin.m_y) / rayDir.m_y;
+		if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+		tmin = (t1 > tmin) ? t1 : tmin;
+		tmax = (t2 < tmax) ? t2 : tmax;
+		if (tmin > tmax) return false;
+	}
+
+	// Z轴
+	if (fabs(rayDir.m_z) < 0.0001f)
+	{
+		if (rayOrigin.m_z < aabbMin.m_z || rayOrigin.m_z > aabbMax.m_z)
+			return false;
+	}
+	else
+	{
+		float t1 = (aabbMin.m_z - rayOrigin.m_z) / rayDir.m_z;
+		float t2 = (aabbMax.m_z - rayOrigin.m_z) / rayDir.m_z;
+		if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+		tmin = (t1 > tmin) ? t1 : tmin;
+		tmax = (t2 < tmax) ? t2 : tmax;
+		if (tmin > tmax) return false;
+	}
+
+	outDist = tmin;
+	return tmin >= 0;
+}
+
+SoldierNPC* ClientGameObjectManagerAddon::findSoldierNPCByRay(const Vector3& rayOrigin, const Vector3& rayDir, float maxDist, float& outDist)
+{
+	float closestDist = maxDist;
+	SoldierNPC* pClosestEnemy = nullptr;
+
+	PE::Handle* pHC = m_components.getFirstPtr();
+	for (PrimitiveTypes::UInt32 i = 0; i < m_components.m_size; i++, pHC++)
+	{
+		Component* pC = (*pHC).getObject<Component>();
+
+		if (pC->isInstanceOf<SoldierNPC>())
+		{
+			SoldierNPC* pNPC = (SoldierNPC*)pC;
+
+			if (!pNPC->isAlive()) continue;
+
+			Vector3 aabbMin, aabbMax;
+			pNPC->getWorldAABB(aabbMin, aabbMax);
+
+			PEINFO("NPC %d AABB: min(%.2f, %.2f, %.2f) max(%.2f, %.2f, %.2f)\n",
+				aabbMin.m_x, aabbMin.m_y, aabbMin.m_z,
+				aabbMax.m_x, aabbMax.m_y, aabbMax.m_z);
+
+			float hitDist;
+			if (rayAABBIntersect(rayOrigin, rayDir, aabbMin, aabbMax, maxDist, hitDist))
+			{
+				if (hitDist < closestDist)
+				{
+					closestDist = hitDist;
+					pClosestEnemy = pNPC;
+				}
+			}
+		}
+	}
+
+
+	outDist = closestDist;
+	return pClosestEnemy;
 }
 
 }
