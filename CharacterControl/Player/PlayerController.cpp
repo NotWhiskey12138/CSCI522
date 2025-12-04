@@ -19,6 +19,7 @@
 #include "CharacterControl/Characters/SoldierNPC.h"
 #include "CharacterControl/ClientGameObjectManagerAddon.h"
 #include "PrimeEngine/Scene/DebugRenderer.h"
+#include "PrimeEngine/Events/StandardEvents.h"
 
 
 using namespace PE::Components;
@@ -180,6 +181,7 @@ namespace CharacterControl {
         {
             Component::addDefaultComponents();
             PE_REGISTER_EVENT_HANDLER(PE::Events::Event_UPDATE, PlayerController::do_UPDATE);
+            PE_REGISTER_EVENT_HANDLER(PE::Events::Event_PRE_RENDER_needsRC, PlayerController::do_PRE_RENDER_needsRC);
         }
 
         void PlayerController::do_UPDATE(PE::Events::Event* pEvt)
@@ -493,5 +495,39 @@ namespace CharacterControl {
                 PEINFO("Missed!\n");
             }
         }
+
+        void PlayerController::do_PRE_RENDER_needsRC(PE::Events::Event* pEvt)
+{
+    PE::Events::Event_PRE_RENDER_needsRC* pRealEvt = (PE::Events::Event_PRE_RENDER_needsRC*)(pEvt);
+    
+    if (m_gameState == GAME_STATE_MENU)
+    {
+        // 获取摄像机位置
+        CameraSceneNode* pCam = CameraManager::Instance()->getActiveCamera()->getCamSceneNode();
+        Matrix4x4 camTransform = pCam->m_worldTransform;
+        
+        Vector3 camPos = camTransform.getPos();
+        Vector3 camForward = camTransform.getN();  // 摄像机朝向
+        
+        // 文字位置：摄像机前方 3 米
+        Vector3 textPos = camPos + camForward * 3.0f;
+        
+        DebugRenderer::Instance()->createTextMesh(
+            "Press ENTER to Start",
+            false, false, true, false, 0,
+            textPos,
+            0.01f,  // 大小
+            pRealEvt->m_threadOwnershipMask
+        );
+        
+        DebugRenderer::Instance()->createTextMesh(
+            "Press ESC to Exit",
+            false, false, true, false, 0,
+            textPos + Vector3(0, -0.3f, 0),  // 稍微往下
+            0.008f,
+            pRealEvt->m_threadOwnershipMask
+        );
+    }
+}
     }
 }

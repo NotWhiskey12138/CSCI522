@@ -4,7 +4,6 @@
 #include "PrimeEngine/Events/Component.h"
 #include "PrimeEngine/Math/Vector3.h"
 #include "PrimeEngine/Math/Matrix4x4.h"
-
 #include "PrimeEngine/Scene/DebugRenderer.h"
 
 namespace PE {

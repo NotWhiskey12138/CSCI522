@@ -309,14 +309,22 @@ int ClientCharacterControlGame::initGame()
 	//so in this case we need to release render context (this function has render context)
 	//and then reacquire once lua is done
 
-	m_pContext->getGPUScreen()->ReleaseRenderContextOwnership(m_pContext->m_gameThreadThreadOwnershipMask);
+	/*m_pContext->getGPUScreen()->ReleaseRenderContextOwnership(m_pContext->m_gameThreadThreadOwnershipMask);*/
 
 #if PE_PLAT_IS_PSVITA // do it for ps3 becasue right now communication between pyClient and ps3 is not working
 	//m_pContext->getLuaEnvironment()->runString("LevelLoader.loadLevel('ccontrollvl0.x_level.levela', 'CharacterControl')");
 #endif
 	//m_pContext->getLuaEnvironment()->runString("LevelLoader.loadLevel('char_highlight.x_level.levela', 'Basic')");
 
+	/*m_pContext->getGPUScreen()->AcquireRenderContextOwnership(m_pContext->m_gameThreadThreadOwnershipMask);*/
+
+	// 加载 M1 场景
+	m_pContext->getGPUScreen()->ReleaseRenderContextOwnership(m_pContext->m_gameThreadThreadOwnershipMask);
+
+	m_pContext->getLuaEnvironment()->runString("LevelLoader.loadLevel('m1level.x_level.levela', 'M1')");
+
 	m_pContext->getGPUScreen()->AcquireRenderContextOwnership(m_pContext->m_gameThreadThreadOwnershipMask);
+
 
 	return 1; // 1 (true) = success. no errors. TODO: add error checking
 }
