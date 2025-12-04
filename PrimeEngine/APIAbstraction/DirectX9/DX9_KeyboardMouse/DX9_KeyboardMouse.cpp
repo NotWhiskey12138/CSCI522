@@ -124,6 +124,39 @@ void DX9_KeyboardMouse::generateButtonEvents()
 			m_pQueueManager->add(h, Events::QT_INPUT);
 
 		}
+		// Enter ¼ü
+		static bool enterWasDown = false;
+		if (GetAsyncKeyState(VK_RETURN) & 0x8000)
+		{
+			if (!enterWasDown)
+			{
+				Handle h("EVENT", sizeof(Event_KEY_ENTER_DOWN));
+				new (h) Event_KEY_ENTER_DOWN;
+				m_pQueueManager->add(h, Events::QT_INPUT);
+				enterWasDown = true;
+			}
+		}
+		else
+		{
+			enterWasDown = false;
+		}
+
+		// Escape ¼ü
+		static bool escapeWasDown = false;
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+		{
+			if (!escapeWasDown)
+			{
+				Handle h("EVENT", sizeof(Event_KEY_ESCAPE_DOWN));
+				new (h) Event_KEY_ESCAPE_DOWN;
+				m_pQueueManager->add(h, Events::QT_INPUT);
+				escapeWasDown = true;
+			}
+		}
+		else
+		{
+			escapeWasDown = false;
+		}
 	}
 }
 

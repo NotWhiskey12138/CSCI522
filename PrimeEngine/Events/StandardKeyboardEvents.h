@@ -79,6 +79,15 @@ struct Event_KEY_SPACE_HELD : public Event {
 	virtual ~Event_KEY_SPACE_HELD() {}
 };
 
+struct Event_KEY_ENTER_DOWN : public Event {
+	PE_DECLARE_CLASS(Event_KEY_ENTER_DOWN);
+	virtual ~Event_KEY_ENTER_DOWN() {}
+};
+
+struct Event_KEY_ESCAPE_DOWN : public Event {
+	PE_DECLARE_CLASS(Event_KEY_ESCAPE_DOWN);
+	virtual ~Event_KEY_ESCAPE_DOWN() {}
+};
 }; // namespace Events
 }; // namespace PE
 

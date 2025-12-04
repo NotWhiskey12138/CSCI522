@@ -5,6 +5,8 @@
 #include "PrimeEngine/Math/Vector3.h"
 #include "PrimeEngine/Math/Matrix4x4.h"
 
+#include "PrimeEngine/Scene/DebugRenderer.h"
+
 namespace PE {
     namespace Events {
         struct EventQueueManager;
@@ -27,6 +29,8 @@ namespace CharacterControl {
 				, m_shoot(false)
                 , m_frameTime(0)             
                 , m_pQueueManager(nullptr)
+                , m_enterPressed(false)
+                , m_escapePressed(false)
             {
                 PEINFO("PlayerGameControls constructor called\n");
             }
@@ -51,12 +55,23 @@ namespace CharacterControl {
             float m_strafe;    // A/D - 左右平移 (-1.0 to 1.0)
             float m_rotate;    // 左右箭头 - 旋转 (-1.0 to 1.0)
             bool m_shoot;// 开火标志
+
+			// 调试按键状态
+            bool m_enterPressed;
+            bool m_escapePressed;
         };
 
         // 主控制器 - 负责角色逻辑和状态
         struct PlayerController : public PE::Components::Component
         {
             PE_DECLARE_CLASS(PlayerController);
+
+            enum GameState
+            {
+                GAME_STATE_MENU,
+                GAME_STATE_PLAYING,
+                GAME_STATE_PAUSED
+            };
 
             PlayerController(PE::GameContext& context, PE::MemoryArena arena,
                 PE::Handle myHandle, Vector3 spawnPos, float networkPingInterval);
@@ -65,6 +80,8 @@ namespace CharacterControl {
 
             PE_DECLARE_IMPLEMENT_EVENT_HANDLER_WRAPPER(do_UPDATE);
             virtual void do_UPDATE(PE::Events::Event* pEvt);
+            PE_DECLARE_IMPLEMENT_EVENT_HANDLER_WRAPPER(do_PRE_RENDER_needsRC);
+            void do_PRE_RENDER_needsRC(PE::Events::Event* pEvt);
 
             void overrideTransform(Matrix4x4& t);
             void activate();
@@ -95,8 +112,16 @@ namespace CharacterControl {
 
             // 射击方法
             void performShoot();
+
+            //枪口火光
+			float m_muzzleFlashTimer;
+			bool m_showMuzzleFlash;
+
+            // 游戏状态
+            GameState m_gameState;
         };
 
+        
     }; // namespace Components
 }; // namespace CharacterControl
 

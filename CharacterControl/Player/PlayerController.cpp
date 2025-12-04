@@ -18,6 +18,8 @@
 
 #include "CharacterControl/Characters/SoldierNPC.h"
 #include "CharacterControl/ClientGameObjectManagerAddon.h"
+#include "PrimeEngine/Scene/DebugRenderer.h"
+
 
 using namespace PE::Components;
 using namespace PE::Events;
@@ -42,6 +44,10 @@ namespace CharacterControl {
             m_strafe = 0;
             m_rotate = 0;
 			m_shoot = false;
+
+			// 重置调试按键状态
+            m_enterPressed = false;
+            m_escapePressed = false;
 
             // 处理输入队列
             PE::Handle iqh = PE::Events::EventQueueManager::Instance()->getEventQueueHandle("input");
@@ -95,6 +101,14 @@ namespace CharacterControl {
             {
 				m_shoot = true; // 开火
 			/*	PEINFO("Space pressed! m_shoot = true\n");*/
+            }
+            else if (Event_KEY_ENTER_DOWN::GetClassId() == pEvt->getClassId())
+            {
+                m_enterPressed = true;
+            }
+            else if (Event_KEY_ESCAPE_DOWN::GetClassId() == pEvt->getClassId())
+            {
+                m_escapePressed = true;
             }
         }
 
@@ -156,6 +170,9 @@ namespace CharacterControl {
             , m_shootCooldownTimer(0)
             , m_shootDamage(25.0f)
             , m_shootRange(100.0f)
+			, m_muzzleFlashTimer(0)
+			, m_showMuzzleFlash(false)
+            , m_gameState(GAME_STATE_MENU)
         {
         }
 
@@ -169,6 +186,33 @@ namespace CharacterControl {
         {
             PE::Events::Event_UPDATE* pRealEvt = (PE::Events::Event_UPDATE*)(pEvt);
 
+            // 获取输入控制值
+            CharacterControlContext* pCtx = m_pContext->get<CharacterControlContext>();
+            PlayerGameControls* pCtrl = pCtx->getPlayerGameControls();
+
+            // === 处理游戏状态 ===
+            if (m_gameState == GAME_STATE_MENU)
+            {
+                // 按 Enter 开始游戏
+                if (pCtrl->m_enterPressed)
+                {
+                    m_gameState = GAME_STATE_PLAYING;
+                    PEINFO("Game Started!\n");
+                }
+
+                // 不处理游戏逻辑
+                return;
+            }
+            else if (m_gameState == GAME_STATE_PLAYING)
+            {
+                // 按 Escape 退出
+                if (pCtrl->m_escapePressed)
+                {
+                    PEINFO("Game Exit!\n");
+                    exit(0);
+                }
+            }
+
             // 获取场景节点
             PE::Handle hFirstSN = getFirstComponentHandle<SceneNode>();
             if (!hFirstSN.isValid())
@@ -181,9 +225,7 @@ namespace CharacterControl {
 
             if (m_active && !m_overriden)
             {
-                // 获取输入控制值
-                CharacterControlContext* pCtx = m_pContext->get<CharacterControlContext>();
-                PlayerGameControls* pCtrl = pCtx->getPlayerGameControls();
+                
 
                 float deltaTime = pRealEvt->m_frameTime;
 
@@ -310,6 +352,62 @@ namespace CharacterControl {
                     pCamSN->m_base.setN(Vector3(0, 0, -1));  // 前（朝向角色）
                 }
             }
+
+            // === 枪口火光渲染 ===
+            if (m_showMuzzleFlash)
+            {
+                m_muzzleFlashTimer -= pRealEvt->m_frameTime;
+
+                if (m_muzzleFlashTimer <= 0)
+                {
+                    m_showMuzzleFlash = false;
+                }
+                else
+                {
+                    // 获取枪口位置（角色前方）
+                    PE::Handle hFirstSN = getFirstComponentHandle<SceneNode>();
+                    if (hFirstSN.isValid())
+                    {
+                        SceneNode* pFirstSN = hFirstSN.getObject<SceneNode>();
+                        Vector3 playerPos = pFirstSN->m_base.getPos();
+                        Vector3 forward = pFirstSN->m_base.getN();
+
+                        // 枪口位置：角色前方 0.5 米，高度 1.3 米
+                        Vector3 muzzlePos = playerPos + forward * 0.5f + Vector3(0, 1.3f, 0);
+						// 射线终点
+                        Vector3 endPos = muzzlePos + forward * 20.0f;  // 20米长的射线
+                        // 画火光（用黄色/橙色线条模拟）
+                        Vector3 color(1.0f, 0.8f, 0.0f);  // 黄橙色
+
+                        Vector3 linepts[] = {
+                muzzlePos, color,
+                endPos, color
+                        };
+
+                        Matrix4x4 identity;
+                        identity.loadIdentity();
+
+                        // 画几条射线表示火光
+                        /*Matrix4x4 identity;
+                        identity.loadIdentity();
+                        identity.setPos(muzzlePos);
+
+                        float flashSize = 0.3f;
+                        Vector3 linepts[] = {
+                            Vector3(0, 0, 0), color,
+                            forward * flashSize, color,
+
+                            Vector3(0, 0, 0), color,
+                            forward * flashSize * 0.7f + Vector3(0, flashSize * 0.3f, 0), color,
+
+                            Vector3(0, 0, 0), color,
+                            forward * flashSize * 0.7f + Vector3(0, -flashSize * 0.3f, 0), color,
+                        };*/
+
+                        DebugRenderer::Instance()->createLineMesh(false, identity, &linepts[0].m_x, 6, 0);
+                    }
+                }
+            }
         }
 
         void PlayerController::overrideTransform(Matrix4x4& t)
@@ -371,10 +469,13 @@ namespace CharacterControl {
             rayDir = -rayDir;
             rayDir.normalize();
 
+            m_showMuzzleFlash = true;
+			m_muzzleFlashTimer = 0.1f; // 显示火光0.1秒
+
             PEINFO("=== Shooting ===\n");
-            PEINFO("Player pos: (%.2f, %.2f, %.2f)\n", rayOrigin.m_x, rayOrigin.m_y, rayOrigin.m_z);
-            PEINFO("Ray dir: (%.2f, %.2f, %.2f)\n", rayDir.m_x, rayDir.m_y, rayDir.m_z);
-            PEINFO("Current rotation: %.2f\n", m_currentRotation);
+            //PEINFO("Player pos: (%.2f, %.2f, %.2f)\n", rayOrigin.m_x, rayOrigin.m_y, rayOrigin.m_z);
+            //PEINFO("Ray dir: (%.2f, %.2f, %.2f)\n", rayDir.m_x, rayDir.m_y, rayDir.m_z);
+            //PEINFO("Current rotation: %.2f\n", m_currentRotation);
 
             CharacterControlContext* pCtx = m_pContext->get<CharacterControlContext>();
             ClientGameObjectManagerAddon* pGOM = (ClientGameObjectManagerAddon*)pCtx->getGameObjectManagerAddon();
